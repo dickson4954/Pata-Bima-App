@@ -1,8 +1,34 @@
-// screens/LoginScreen.js
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // ✅ Eye icon
 
 export default function LoginScreen({ navigation }) {
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false); // 👁️ Toggle state
+
+  const handleLogin = () => {
+    if (!phone || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (phone.trim() === '0712345678' && password.trim() === 'password123') {
+      navigation.replace('MainTabs');
+
+    } else {
+      Alert.alert('Login Failed', 'Incorrect phone number or password');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png.jpg')} style={styles.logo} />
@@ -13,13 +39,29 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
         placeholder="Phone Number"
         placeholderTextColor="#aaa"
+        value={phone}
+        onChangeText={setPhone}
+        keyboardType="phone-pad"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        placeholderTextColor="#aaa"
-      />
+
+      {/* 👁️ Password input with toggle */}
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Password"
+          placeholderTextColor="#aaa"
+          secureTextEntry={!passwordVisible}
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+          <Ionicons
+            name={passwordVisible ? 'eye' : 'eye-off'}
+            size={22}
+            color="#777"
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.linkRow}>
         <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
@@ -30,13 +72,13 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
 
       <Text style={styles.terms}>
-        Review our <Text style={styles.bold}>Terms and Policies</Text>{"\n"}
-        PataBima  Ver 1.0.0
+        Review our <Text style={styles.bold}>Terms and Policies</Text>{'\n'}
+        PataBima Ver 1.0.0
       </Text>
     </View>
   );
@@ -69,6 +111,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 14,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 48,
+    color: '#000',
   },
   linkRow: {
     flexDirection: 'row',
