@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,32 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 const QuotationScreen = () => {
+  const [selectedFilter, setSelectedFilter] = useState('All');
+
+  const quotations = [
+    {
+      plate: 'KDH123H',
+      applied: false,
+      provider: '---',
+      date: '---',
+      premium: '---',
+      reg: '---',
+    },
+    {
+      plate: 'KBC 1234D',
+      applied: true,
+      provider: 'Definite',
+      date: '6/29/2025',
+      premium: 'Ksh. 32,696 (gross)',
+      reg: 'KDH123H',
+    },
+  ];
+
+  const filteredQuotations =
+    selectedFilter === 'All'
+      ? quotations
+      : quotations.filter((q) => q.applied === (selectedFilter === 'Applied'));
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -23,53 +49,78 @@ const QuotationScreen = () => {
 
         {/* Filter Buttons */}
         <View style={styles.filters}>
-          <TouchableOpacity style={styles.filterBtn}><Text>All</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.filterBtn}><Text>Applied</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.filterBtn}><Text>Unapplied</Text></TouchableOpacity>
+          {['All', 'Applied', 'Unapplied'].map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              style={[
+                styles.filterBtn,
+                selectedFilter === filter && styles.activeFilterBtn,
+              ]}
+              onPress={() => setSelectedFilter(filter)}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  styles.redFilterText,
+                  selectedFilter === filter && styles.activeFilterText,
+                ]}
+              >
+                {filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Quotation Cards */}
-        {[1, 2].map((item, i) => {
-          const isApplied = i === 1;
-          return (
-            <View key={i} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Ionicons name="document-text-outline" size={20} color="black" />
-                <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Text style={styles.cardTitle}>{isApplied ? 'KBC 1234D' : 'KDH123H'}</Text>
-                  <Text style={styles.policyType}>Policy Type: PVC</Text>
-                </View>
-                <View style={styles.statusTag}>
-                  <Text style={styles.statusText}>{isApplied ? 'Applied' : 'Unapplied'}</Text>
-                </View>
+        {filteredQuotations.map((q, i) => (
+          <View key={i} style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="document-text-outline" size={20} color="black" />
+              <View style={{ marginLeft: 10, flex: 1 }}>
+                <Text style={styles.cardTitle}>{q.plate}</Text>
+                <Text style={styles.policyType}>Policy Type: PVC</Text>
               </View>
-
-              {/* Body Section */}
-              <View style={styles.cardBody}>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Insurance Provider:</Text>
-                  <Text style={styles.value}>{isApplied ? 'Definite' : '---'}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Date Created:</Text>
-                  <Text style={styles.value}>{isApplied ? '6/29/2025' : '---'}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Total Premium:</Text>
-                  <Text style={styles.value}>{isApplied ? 'Ksh. 32,696 (gross)' : '---'}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Vehicle Registration:</Text>
-                  <Text style={styles.value}>{isApplied ? 'KDH123H' : '---'}</Text>
-                </View>
+              <View
+                style={[
+                  styles.statusTag,
+                  styles.appliedTag,
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {q.applied ? 'Applied' : 'Unapplied'}
+                </Text>
               </View>
-
-              {/* Buttons */}
-              <TouchableOpacity style={styles.button}><Text>View Quotation</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.button}><Text>Apply Policy</Text></TouchableOpacity>
             </View>
-          );
-        })}
+
+            {/* Body Section */}
+            <View style={styles.cardBody}>
+              <View style={styles.row}>
+                <Text style={styles.label}>Insurance Provider:</Text>
+                <Text style={styles.value}>{q.provider}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Date Created:</Text>
+                <Text style={styles.value}>{q.date}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Total Premium:</Text>
+                <Text style={styles.value}>{q.premium}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Vehicle Registration:</Text>
+                <Text style={styles.value}>{q.reg}</Text>
+              </View>
+            </View>
+
+            {/* Buttons */}
+            <TouchableOpacity style={styles.button}>
+              <Text>View Quotation</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <Text>Apply Policy</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
@@ -78,7 +129,7 @@ const QuotationScreen = () => {
 export default QuotationScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  container: { flex: 1, padding: 20, paddingTop: 40, backgroundColor: '#fff' },
   title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   searchContainer: {
     flexDirection: 'row',
@@ -89,12 +140,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   searchInput: { marginLeft: 10, flex: 1 },
-  filters: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 15 },
+  filters: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 15,
+  },
   filterBtn: {
-    backgroundColor: '#eee',
     paddingVertical: 6,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     borderRadius: 20,
+    backgroundColor: '#eee',
+  },
+  activeFilterBtn: {
+    backgroundColor: '#E30613',
+  },
+  filterText: {
+    fontWeight: 'bold',
+  },
+  redFilterText: {
+    color: '#E30613',
+  },
+  activeFilterText: {
+    color: 'white',
   },
   card: {
     backgroundColor: '#f9f9f9',
@@ -110,13 +177,19 @@ const styles = StyleSheet.create({
   cardTitle: { fontWeight: 'bold', fontSize: 16 },
   policyType: { fontSize: 12, color: '#555' },
   statusTag: {
-    backgroundColor: '#ddd',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
     marginLeft: 'auto',
   },
-  statusText: { fontSize: 10 },
+  appliedTag: {
+    backgroundColor: '#E30613',
+  },
+  statusText: {
+    fontSize: 10,
+    color: 'white',
+    fontWeight: 'bold',
+  },
   cardBody: {
     marginTop: 10,
     marginBottom: 10,

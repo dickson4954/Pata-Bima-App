@@ -21,9 +21,8 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    if (phone.trim() === '0712345678' && password.trim() === 'password123') {
+    if (phone.trim() === '0712345678' && password.trim() === '1234') {
       navigation.replace('MainTabs');
-
     } else {
       Alert.alert('Login Failed', 'Incorrect phone number or password');
     }
@@ -32,7 +31,7 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png.jpg')} style={styles.logo} />
-
+      <Text style={styles.signupTitle}><Text style={styles.bold}>Let's sign You In</Text></Text>
       <Text style={styles.welcome}>Welcome back, you’ve been missed</Text>
 
       <TextInput
@@ -58,7 +57,7 @@ export default function LoginScreen({ navigation }) {
           <Ionicons
             name={passwordVisible ? 'eye' : 'eye-off'}
             size={22}
-            color="#777"
+            color="#FF0000"
           />
         </TouchableOpacity>
       </View>
@@ -68,7 +67,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.link}>Forgot your password</Text>
+          <Text style={styles.forgotLink}>Forgot your password</Text>
         </TouchableOpacity>
       </View>
 
@@ -97,6 +96,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     marginBottom: 20,
+  },
+  signupTitle: {
+    fontSize: 22,
+    textAlign: 'center',
+    color: '#000',
+    marginBottom: 6,
   },
   welcome: {
     textAlign: 'center',
@@ -135,8 +140,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#000',
   },
+  forgotLink: {
+    fontSize: 13,
+    color: '#FF0000',
+  },
   button: {
-    backgroundColor: '#000',
+    backgroundColor: '#FF0000',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',

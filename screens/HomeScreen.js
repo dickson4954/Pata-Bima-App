@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,68 +6,154 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
+  const [activeTab, setActiveTab] = useState('Extensions');
+
+  const handleProductPress = (product) => {
+    if (product === 'Motor Vehicle Insurance') {
+      navigation.navigate('VehicleInsurance1');
+    }
+    // Add other product navigations as needed
+  };
+
+  const renderExtensions = () => (
+    <View style={styles.extensionsList}>
+      {['KBH123B', 'KDA456X'].map((plate, index) => (
+        <View
+          key={plate}
+          style={[
+            styles.extensionCard,
+            { backgroundColor: '#F8D7DA' },
+          ]}
+        >
+          <View style={styles.extensionRow}>
+            <View>
+              <Text style={[styles.policyNumber, { color: '#E30613' }]}>{plate}</Text>
+              <Text style={styles.policyType}>
+                {plate === 'KBH123B' ? 'Comprehensive' : 'Third Party'}
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.renewButton}>
+              <Text style={styles.renewText}>Renew</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderRenewals = () => (
+    <View style={styles.extensionsList}>
+      <View style={[styles.extensionCard, { backgroundColor: '#F8D7DA' }]}>
+        <View style={styles.extensionRow}>
+          <View>
+            <Text style={[styles.policyNumber, { color: '#E30613' }]}>KCE987G</Text>
+            <Text style={styles.policyType}>Comprehensive</Text>
+          </View>
+          <TouchableOpacity style={styles.renewButton}>
+            <Text style={styles.renewText}>Renew</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.userInfo}>
-            <Ionicons name="person-circle-outline" size={40} color="black" />
-            <View style={{ marginLeft: 10 }}>
-              <Text style={styles.greeting}>Good Morning</Text>
-              <Text style={styles.username}>John Doe</Text>
-            </View>
+            <Text style={styles.greeting}>Good Morning</Text>
+            <Text style={styles.username}>John Doe</Text>
           </View>
-          <Ionicons name="notifications-outline" size={24} color="black" />
+          <Ionicons name="notifications-outline" size={24} color="#E30613" />
         </View>
 
-        {/* Buttons */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.chip}><Text>Today</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.chip}><Text>Last Commission</Text></TouchableOpacity>
-        </View>
-
-        {/* Sales Card */}
+        {/* My Sales Card */}
         <View style={styles.salesCard}>
-          <View style={styles.salesRow}>
-            <Text style={styles.label}>My Sales</Text>
-            <Text style={styles.label}>Period: <Text style={styles.value}>2 Day</Text></Text>
+          <View style={styles.salesTopRow}>
+            <Text style={styles.salesTitle}>My Sales</Text>
+            <Text style={styles.salesPeriod}>
+              Period: <Text style={styles.redText}>2 Day</Text>
+            </Text>
           </View>
-          <View style={styles.salesRow}>
-            <Text style={styles.subLabel}>Next Commission Date</Text>
-            <Text style={styles.subLabel}>Policies Sold</Text>
+          <View style={styles.salesBottomRow}>
+            <View>
+              <Text style={styles.subLabel}>Next Commission</Text>
+              <Text style={styles.redText}>Date: Tue, July 1</Text>
+            </View>
+            <View>
+              <Text style={styles.subLabel}>Policies Sold</Text>
+              <Text style={styles.redText}>2</Text>
+            </View>
           </View>
         </View>
 
         {/* Insurance Products */}
         <Text style={styles.sectionTitle}>Section: Insurance Products</Text>
         <View style={styles.productsRow}>
-          {['Motor Vehicle Insurance', 'Medical Insurance', 'WIBA Insurance', 'Last Expense'].map((item, index) => (
-            <View key={index} style={styles.productBox}>
-              <View style={styles.squareBox} />
-              <Text style={styles.productText}>{item}</Text>
-            </View>
-          ))}
+          <TouchableOpacity
+            style={styles.productBox}
+            onPress={() => handleProductPress('Motor Vehicle Insurance')}
+          >
+            <Ionicons name="car-sport-outline" size={28} color="#E30613" />
+            <Text style={styles.productText}>Motor Vehicle Insurance</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.productBox}>
+            <Ionicons name="medkit-outline" size={28} color="#E30613" />
+            <Text style={styles.productText}>Medical Insurance</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.productBox}>
+            <Ionicons name="briefcase-outline" size={28} color="#E30613" />
+            <Text style={styles.productText}>WIBA Insurance</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.productBox}>
+            <Ionicons name="heart-outline" size={28} color="#E30613" />
+            <Text style={styles.productText}>Last Expense</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Campaigns */}
         <Text style={styles.sectionTitle}>Section: Campaigns</Text>
-        <View style={styles.campaigns}>
-          <View style={styles.campaignBox}></View>
-          <View style={styles.campaignBox}></View>
+
+        {/* Spacer between Campaigns and Upcoming Extensions */}
+        <View style={{ height: 70 }} />
+
+        {/* Upcoming Extensions */}
+        <Text style={styles.sectionTitle}>Section: Upcoming Extensions</Text>
+        <View style={styles.toggleTabs}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'Renewals' ? styles.activeTab : styles.inactiveTab]}
+            onPress={() => setActiveTab('Renewals')}
+          >
+            <Text
+              style={activeTab === 'Renewals' ? styles.activeTabText : styles.inactiveTabText}
+            >
+              Renewals (8)
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'Extensions' ? styles.activeTab : styles.inactiveTab]}
+            onPress={() => setActiveTab('Extensions')}
+          >
+            <Text
+              style={activeTab === 'Extensions' ? styles.activeTabText : styles.inactiveTabText}
+            >
+              Extensions (2)
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Bottom Buttons */}
-        <View style={styles.bottomButtons}>
-          <TouchableOpacity style={styles.actionBtn}><Text>Renewals(8)</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}><Text>Extensions(2)</Text></TouchableOpacity>
-        </View>
+        {activeTab === 'Extensions' ? renderExtensions() : renderRenewals()}
       </ScrollView>
-
-     
     </View>
   );
 };
@@ -75,44 +161,37 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, paddingTop: 30, backgroundColor: '#fff' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: 20,
+    padding: 20,
   },
-  userInfo: { flexDirection: 'row', alignItems: 'center' },
-  greeting: { fontSize: 16, color: '#333' },
-  username: { fontWeight: 'bold', fontSize: 16 },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: 10,
-  },
-  chip: {
-    backgroundColor: '#eee',
-    paddingVertical: 6,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-  },
+  userInfo: {},
+  greeting: { fontSize: 16, color: '#000' },
+  username: { fontSize: 18, fontWeight: 'bold' },
   salesCard: {
-    margin: 20,
+    backgroundColor: '#E30613',
+    margin: 15,
+    borderRadius: 12,
     padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#0096FF',
   },
-  salesRow: {
+  salesTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 5,
+    marginBottom: 10,
   },
-  label: { fontWeight: 'bold', fontSize: 16 },
-  value: { fontWeight: 'normal' },
-  subLabel: { color: 'gray', marginTop: 10 },
+  salesBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  salesTitle: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+  salesPeriod: { color: 'white' },
+  redText: { color: 'white', fontWeight: 'bold' },
+  subLabel: { color: 'white', fontSize: 12 },
   sectionTitle: {
-    marginHorizontal: 20,
+    marginHorizontal: 15,
     marginTop: 20,
     fontWeight: 'bold',
     fontSize: 16,
@@ -121,59 +200,74 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    marginVertical: 10,
+    marginTop: 10,
   },
   productBox: {
     alignItems: 'center',
-    margin: 5,
-    width: '45%',
-  },
-  squareBox: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#eee',
-    borderRadius: 10,
-    marginBottom: 5,
+    margin: 10,
+    width: '40%',
   },
   productText: {
     textAlign: 'center',
     fontSize: 12,
+    marginTop: 5,
   },
-  campaigns: {
+  toggleTabs: {
     flexDirection: 'row',
+    marginHorizontal: 15,
+    marginVertical: 10,
     justifyContent: 'space-around',
-    margin: 20,
   },
-  campaignBox: {
-    width: 140,
-    height: 100,
-    backgroundColor: '#ddd',
-    borderRadius: 10,
-  },
-  bottomButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 30,
-  },
-  actionBtn: {
-    backgroundColor: '#ccc',
-    paddingVertical: 10,
+  tab: {
+    borderRadius: 20,
+    paddingVertical: 6,
     paddingHorizontal: 20,
-    borderRadius: 25,
   },
-  navbar: {
+  activeTab: {
+    backgroundColor: '#E30613',
+  },
+  activeTabText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  inactiveTab: {
+    backgroundColor: '#e0e0e0',
+  },
+  inactiveTabText: {
+    color: '#555',
+    fontWeight: 'bold',
+  },
+  extensionsList: {
+    marginHorizontal: 15,
+  },
+  extensionCard: {
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  extensionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-  },
-  navItem: {
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  navLabel: {
-    fontSize: 10,
-    marginTop: 3,
+  policyNumber: {
+    fontWeight: 'bold',
+    fontSize: 14,
   },
+  policyType: {
+    fontSize: 12,
+    color: '#666',
+  },
+  renewButton: {
+    backgroundColor: '#E30613',
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+  },
+  renewText: { color: 'white', fontWeight: 'bold' },
 });

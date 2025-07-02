@@ -10,7 +10,7 @@ export default function WelcomeScreen({ navigation }) {
       />
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Signup')} // 👈 changed to Signup
+        onPress={() => navigation.navigate('Signup')}
       >
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   button: {
-    backgroundColor: '#222',
+    backgroundColor: '#FF0000', 
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 8,

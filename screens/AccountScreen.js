@@ -26,8 +26,8 @@ const MyAccountScreen = () => {
       {/* My Earnings Section */}
       <Text style={styles.sectionTitle}>My Earnings</Text>
       <View style={styles.earningsCard}>
-        <Text style={styles.earningsButtonText}>Upcoming Commission</Text>
-        <Text style={styles.earningsAmount}>KES 0</Text>
+        <Text style={styles.earningsHeader}>Upcoming Commission</Text>
+        <Text style={styles.earningsAmount}>KES 10000</Text>
         <Text style={styles.earningsText}>Your payout is scheduled 1st July, 2025</Text>
         <TouchableOpacity style={styles.earningsButton}>
           <Text style={styles.earningsButtonText}>View Earnings</Text>
@@ -73,6 +73,11 @@ const MyAccountScreen = () => {
 
       {/* Commission History */}
       <Text style={styles.sectionTitle}>Commission History</Text>
+      <View style={styles.historyCard}>
+        <Ionicons name="file-tray-full-outline" size={50} color="#555" style={{ marginBottom: 10 }} />
+        <Text style={styles.historyTitle}>No Commission History</Text>
+        <Text style={styles.historySubtitle}>Your commission transactions will appear here</Text>
+      </View>
     </ScrollView>
   );
 };
@@ -83,6 +88,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingTop: 40,
     backgroundColor: '#fff',
   },
   sectionTitle: {
@@ -92,7 +98,7 @@ const styles = StyleSheet.create({
     color: '#222',
   },
   accountCard: {
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#fdecef',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -111,12 +117,19 @@ const styles = StyleSheet.create({
   agentCode: {
     fontSize: 13,
     color: '#555',
+    textDecorationLine: 'underline',
   },
   earningsCard: {
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#fdecef',
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
+  },
+  earningsHeader: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    color: '#222',
+    marginBottom: 4,
   },
   earningsAmount: {
     fontSize: 20,
@@ -130,7 +143,7 @@ const styles = StyleSheet.create({
   },
   earningsButton: {
     marginTop: 12,
-    backgroundColor: '#ddd',
+    backgroundColor: '#e30613',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 14,
@@ -139,7 +152,7 @@ const styles = StyleSheet.create({
   earningsButtonText: {
     fontWeight: '500',
     fontSize: 13,
-    color: '#000',
+    color: '#fff',
   },
   toggleRow: {
     flexDirection: 'row',
@@ -188,5 +201,25 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 12,
     color: '#666',
+  },
+  historyCard: {
+    backgroundColor: '#fdecef',
+    borderRadius: 12,
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 40,
+  },
+  historyTitle: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginBottom: 4,
+    color: '#333',
+  },
+  historySubtitle: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
   },
 });

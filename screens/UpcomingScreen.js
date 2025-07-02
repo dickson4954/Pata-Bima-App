@@ -8,42 +8,103 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const UpcomingScreen = () => {
+  const [search, setSearch] = useState('');
   const [tab, setTab] = useState('Renewals');
-  const renewals = [{ id: '1', reg: 'KBH123B' }, { id: '2', reg: 'KBH123B' }];
-  const extensions = [];
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemCard}>
-      <View>
-        <Text style={styles.reg}>{item.reg}</Text>
-        <Text style={styles.policyType}>Policy type</Text>
-      </View>
-      <View style={styles.cardRight}>
-        <TouchableOpacity style={styles.renewBtn}>
-          <Text style={styles.renewText}>Renew</Text>
-        </TouchableOpacity>
-        <Ionicons name="chevron-down" size={20} color="#555" style={{ marginLeft: 8 }} />
-      </View>
-    </View>
+  const renewals = [
+    {
+      id: '1',
+      title: 'Annual Policy Renewal',
+      vehicle: 'KDH123H',
+      date: '2025-07-10',
+      provider: 'Jubilee',
+      premium: 'Ksh. 22,000',
+    },
+    {
+      id: '2',
+      title: 'Quarterly Policy Renewal',
+      vehicle: 'KBZ456Y',
+      date: '2025-08-15',
+      provider: 'APA',
+      premium: 'Ksh. 10,500',
+    },
+  ];
+
+  const extensions = [
+    {
+      id: '3',
+      title: '6-Month Extension',
+      vehicle: 'KDA789T',
+      date: '2025-07-12',
+      provider: 'Britam',
+      premium: 'Ksh. 13,000',
+    },
+    {
+      id: '4',
+      title: '3-Month Extension',
+      vehicle: 'KCE321L',
+      date: '2025-09-05',
+      provider: 'CIC',
+      premium: 'Ksh. 8,200',
+    },
+  ];
+
+  const data = tab === 'Renewals' ? renewals : extensions;
+
+  const filteredItems = data.filter((item) =>
+    item.vehicle.toLowerCase().includes(search.toLowerCase())
   );
 
-  const renderContent = () => {
-    const data = tab === 'Renewals' ? renewals : extensions;
+  const renderItem = ({ item }) => {
+    const today = new Date();
+    const itemDate = new Date(item.date);
+    const isPastDue = itemDate < today;
 
-    if (data.length === 0) {
+    return (
+      <View style={[styles.card, isPastDue && styles.pastDueCard]}>
+        <View style={styles.cardHeader}>
+          <Ionicons name="calendar" size={20} color="black" />
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Text style={styles.policyType}>{item.vehicle}</Text>
+          </View>
+          <View style={styles.dateTag}>
+            <Text style={styles.statusText}>{item.date}</Text>
+          </View>
+        </View>
+
+        <View style={styles.cardBody}>
+          <View style={styles.row}>
+            <Text style={styles.label}>Insurance Provider:</Text>
+            <Text style={styles.value}>{item.provider}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Premium:</Text>
+            <Text style={styles.value}>{item.premium}</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.button}>
+          <Text>View Details</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderContent = () => {
+    if (filteredItems.length === 0) {
       return (
         <View style={styles.emptyContainer}>
           <View style={styles.circle}>
             <Ionicons name="close" size={60} color="#999" />
           </View>
-          <Text style={styles.emptyText}>No Upcoming Extensions</Text>
+          <Text style={styles.emptyText}>No Upcoming {tab}</Text>
           <Text style={styles.emptySubText}>
-            They are currently no upcoming Extensions
+            There are currently no upcoming {tab}.
           </Text>
         </View>
       );
@@ -51,7 +112,7 @@ const UpcomingScreen = () => {
 
     return (
       <FlatList
-        data={data}
+        data={filteredItems}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
@@ -67,12 +128,13 @@ const UpcomingScreen = () => {
       <Text style={styles.title}>Upcoming</Text>
 
       {/* Search Bar */}
-      <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={18} color="#aaa" style={{ marginRight: 8 }} />
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#aaa" />
         <TextInput
-          placeholder="Search"
-          placeholderTextColor="#aaa"
+          placeholder="Search by Vehicle"
           style={styles.searchInput}
+          value={search}
+          onChangeText={setSearch}
         />
       </View>
 
@@ -92,12 +154,12 @@ const UpcomingScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* List or Empty Message */}
+      {/* Upcoming List or Empty State */}
       {renderContent()}
 
       {/* Claims Button */}
-      <TouchableOpacity style={styles.claimsBtn}>
-        <Text style={styles.claimsText}>Claims</Text>
+      <TouchableOpacity style={styles.claimsBtnRed}>
+        <Text style={styles.claimsTextWhite}>Claims</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
@@ -106,38 +168,24 @@ const UpcomingScreen = () => {
 export default UpcomingScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  searchBox: {
+  container: { flex: 1, padding: 20, paddingTop: 40, backgroundColor: '#fff' },
+  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  searchContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f1f1f1',
-    borderRadius: 12,
-    paddingHorizontal: 12,
     alignItems: 'center',
-    height: 42,
-    marginBottom: 16,
+    backgroundColor: '#eee',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: '#000',
-  },
+  searchInput: { marginLeft: 10, flex: 1 },
   tabRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#eee',
     padding: 4,
     borderRadius: 30,
-    marginBottom: 16,
+    marginBottom: 10,
   },
   tab: {
     flex: 1,
@@ -153,38 +201,61 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  itemCard: {
+  card: {
+    backgroundColor: '#f9f9f9',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  pastDueCard: {
+    backgroundColor: '#ffebe8',
+    borderColor: '#E30613',
+    borderWidth: 1,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  cardTitle: { fontWeight: 'bold', fontSize: 16 },
+  policyType: { fontSize: 12, color: '#555' },
+  dateTag: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginLeft: 'auto',
+    backgroundColor: '#E30613',
+  },
+  statusText: {
+    fontSize: 10,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  cardBody: {
+    marginTop: 10,
+    marginBottom: 10,
+    gap: 6,
+  },
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    alignItems: 'center',
   },
-  cardRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  reg: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 2,
-  },
-  policyType: {
-    color: '#666',
-    fontSize: 12,
-  },
-  renewBtn: {
-    backgroundColor: '#e6e6e6',
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-  },
-  renewText: {
+  label: {
     fontSize: 13,
-    fontWeight: 'bold',
-    color: '#000',
+    color: '#333',
+    fontWeight: '500',
+  },
+  value: {
+    fontSize: 13,
+    color: '#555',
+  },
+  button: {
+    borderWidth: 1,
+    borderColor: '#aaa',
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 5,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -209,17 +280,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
-  claimsBtn: {
-    backgroundColor: '#eee',
+  claimsBtnRed: {
+    backgroundColor: '#E30613',
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 'auto',
     marginBottom: 10,
   },
-  claimsText: {
+  claimsTextWhite: {
     fontWeight: 'bold',
     fontSize: 15,
-    color: '#333',
+    color: '#fff',
   },
 });

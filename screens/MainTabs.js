@@ -1,4 +1,3 @@
-// screens/MainTabs.js
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
@@ -23,14 +22,18 @@ export default function MainTabs() {
           else if (route.name === 'My Account') iconName = 'user';
           return <FontAwesome name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#0096FF',
+        tabBarActiveTintColor: '#E30613',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
           height: 60,
           paddingBottom: 5,
+          backgroundColor: '#fff',
+          borderTopColor: '#ccc',
+          borderTopWidth: 1,
         },
         tabBarLabelStyle: {
           fontSize: 12,
+          fontWeight: 'bold',
         },
       })}
     >
