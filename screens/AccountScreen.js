@@ -13,8 +13,15 @@ const MyAccountScreen = () => {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* My Account Section */}
-      <Text style={styles.sectionTitle}>My Account</Text>
+      {/* My Account Header with Logout */}
+      <View style={styles.accountHeaderRow}>
+        <Text style={styles.sectionTitle}>My Account</Text>
+        <TouchableOpacity>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Account Info */}
       <View style={styles.accountCard}>
         <Ionicons name="person-circle-outline" size={70} color="#555" style={styles.profileIcon} />
         <View>
@@ -91,10 +98,20 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     backgroundColor: '#fff',
   },
+  accountHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  logoutText: {
+    color: '#e30613',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   sectionTitle: {
     fontWeight: 'bold',
     fontSize: 16,
-    marginBottom: 8,
     color: '#222',
   },
   accountCard: {

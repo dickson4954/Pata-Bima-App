@@ -7,124 +7,287 @@ import {
   ScrollView,
   TextInput,
   Image,
+  Alert,
 } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const VehicleInsuranceScreen9 = () => {
-  const [phoneNumber, setPhoneNumber] = React.useState('0722....');
+  const [phoneNumber, setPhoneNumber] = React.useState('');
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  // ✅ Extract everything passed from Screen 8
+  const {
+    insuranceType = 'Private Comprehensive',
+    insurer = 'CIC Insurance',
+    coverPeriod = '01 Jul 2025 - 30 Jun 2026',
+    premium = 'KES 25,000',
+    policyFee = 'KES 500',
+    total = 'KES 25,500',
+    verifiedData = {},
+    registrationNumber = '',
+    provider = '',
+    insuranceProduct = '',
+    coverStartDate = '',
+  } = route.params || {};
+
+  const {
+    kraPin = '',
+    firstName = '',
+    lastName = '',
+    registration = registrationNumber,
+    chassisNo = '',
+    make = '',
+    model = '',
+  } = verifiedData;
+
+  const handlePayment = () => {
+    if (!phoneNumber.startsWith('07') || phoneNumber.length !== 10) {
+      Alert.alert('Invalid Number', 'Enter a valid Safaricom number starting with 07...');
+      return;
+    }
+
+    Alert.alert('STK Push Sent', 'Please check your phone and enter your M-PESA PIN.');
+
+    // ✅ Pass everything to Screen 10
+    navigation.navigate('VehicleInsurance10', {
+      insuranceType,
+      insurer,
+      coverPeriod,
+      premium,
+      policyFee,
+      total,
+      phoneNumber,
+      verifiedData,
+      provider,
+      insuranceProduct,
+      coverStartDate,
+    });
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Payment Header */}
-      <Text style={styles.header}>Payment</Text>
-      
-      {/* Policy Summary */}
-      <Text style={styles.sectionTitle}>Policy Summary</Text>
-      <View style={styles.summaryBox}>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Insurance Type:</Text>
-          <Text style={styles.summaryValue}>Private Comprehensive</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Insurer:</Text>
-          <Text style={styles.summaryValue}>CIC Insurance (example)</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Cover:</Text>
-          <Text style={styles.summaryValue}>Plexica 0.347305 – $0.Jun 2036</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Premium:</Text>
-          <Text style={styles.summaryValue}>K$3,5000</Text>
+      {/* Header & Step Indicator */}
+      <View style={styles.stepHeader}>
+        <Text style={styles.torTitle}>{insuranceProduct || 'TOR For Private'}</Text>
+        <View style={styles.stepIndicator}>
+          <Text style={styles.stepLabel}>1 Payment</Text>
+          <View style={styles.stepNumbers}>
+            {[2, 3, 4, 5, 6].map((num, index) => (
+              <View
+                key={index}
+                style={[styles.stepCircle, index === 5 ? styles.activeStep : null]}
+              >
+                <Text
+                  style={[styles.stepNumber, index === 5 ? styles.activeStepText : null]}
+                >
+                  {num}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <Text style={styles.stepText}>Step Indicator:</Text>
         </View>
       </View>
 
-      {/* Payment Option */}
-      <Text style={styles.sectionTitle}>Payment Option</Text>
-      <View style={styles.paymentOptionBox}>
-        <View style={styles.paymentOptionRow}>
-          <Text style={styles.paymentOptionLabel}>M-PESA</Text>
-          <Image 
-            source={require('../assets/mpesa.jpeg')}
-            style={styles.mpesaLogo}
-          />
+      {/* Page Title */}
+      <Text style={styles.pageTitle}>Payment</Text>
+
+      {/* Policy Summary */}
+      <Text style={styles.sectionTitle}>Policy Summary</Text>
+      <View style={styles.box}>
+        <Text style={styles.policyText}>
+          <Text style={styles.boldText}>Insurance Type:</Text> {insuranceType}{'\n'}
+          <Text style={styles.boldText}>Insurer:</Text> {insurer}{'\n'}
+          <Text style={styles.boldText}>Cover Period:</Text> {coverPeriod}{'\n'}
+          <Text style={styles.boldText}>Premium:</Text> {premium}
+        </Text>
+      </View>
+
+      {/* Personal & Vehicle Details */}
+      <Text style={styles.sectionTitle}>Verified Details</Text>
+      <View style={styles.box}>
+        <Text style={styles.policyText}>
+          <Text style={styles.boldText}>KRA PIN:</Text> {kraPin}{'\n'}
+          <Text style={styles.boldText}>First Name:</Text> {firstName}{'\n'}
+          <Text style={styles.boldText}>Last Name:</Text> {lastName}{'\n'}
+          <Text style={styles.boldText}>Reg. Number:</Text> {registration}{'\n'}
+          <Text style={styles.boldText}>Chassis No:</Text> {chassisNo}{'\n'}
+          <Text style={styles.boldText}>Make:</Text> {make}{'\n'}
+          <Text style={styles.boldText}>Model:</Text> {model}
+        </Text>
+      </View>
+
+      {/* Payment Method */}
+      <Text style={styles.sectionTitle}>Payment Method</Text>
+      <View style={styles.paymentMethodBox}>
+        <Image
+          source={require('../assets/mpesa.jpeg')}
+          style={styles.mpesaLogo}
+        />
+        <Text style={styles.paymentLabel}>Mpesa</Text>
+        <View style={styles.radioOuter}>
+          <View style={styles.radioInner} />
         </View>
       </View>
 
       {/* Payment Summary */}
       <Text style={styles.sectionTitle}>Payment Summary</Text>
-      <View style={styles.paymentSummaryBox}>
-        <View style={styles.paymentSummaryRow}>
-          <Text style={styles.paymentSummaryLabel}>Premium:</Text>
-          <Text style={styles.paymentSummaryValue}>K$3,5000</Text>
+      <View style={styles.box}>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Premium:</Text>
+          <Text style={styles.summaryValue}>{premium}</Text>
         </View>
-        <View style={styles.paymentSummaryRow}>
-          <Text style={styles.paymentSummaryLabel}>Policy Fee:</Text>
-          <Text style={styles.paymentSummaryValue}>K$5,900</Text>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Policy Fee:</Text>
+          <Text style={styles.summaryValue}>{policyFee}</Text>
         </View>
-        <View style={[styles.paymentSummaryRow, styles.totalRow]}>
-          <Text style={styles.paymentSummaryLabel}>Total:</Text>
-          <Text style={styles.paymentSummaryValue}>K$3,53500</Text>
+        <View style={styles.summaryRow}>
+          <Text style={[styles.summaryLabel, styles.totalLabel]}>Total:</Text>
+          <Text style={[styles.summaryValue, styles.totalLabel]}>{total}</Text>
         </View>
       </View>
 
-      {/* Phone Number Input */}
-      <Text style={styles.phoneNumberLabel}>Add Mpesa Phone Number to pay</Text>
+      {/* M-PESA Phone Number */}
+      <Text style={styles.inputLabel}>Add Mpesa Phone Number to pay</Text>
       <TextInput
-        style={styles.phoneNumberInput}
+        style={styles.input}
         value={phoneNumber}
         onChangeText={setPhoneNumber}
+        placeholder="0722..."
+        placeholderTextColor="#888"
         keyboardType="phone-pad"
-        placeholder="0722...."
-        placeholderTextColor="#999"
       />
 
-      {/* Pay Now Button */}
-      <TouchableOpacity style={styles.payButton}>
-        <Text style={styles.payButtonText}>Pay Now</Text>
+      {/* Payment Button */}
+      <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+        <Text style={styles.payButtonText}>Make Payment</Text>
       </TouchableOpacity>
-
-      {/* Verification Circle with M-Pesa Logo */}
-      <View style={styles.verificationContainer}>
-        <View style={styles.verificationCircle}>
-          <Image 
-            source={require('../assets/mpesa.jpeg')}
-            style={styles.verificationLogo}
-          />
-        </View>
-        <Text style={styles.verificationText}>Payment secured by M-PESA</Text>
-      </View>
     </ScrollView>
   );
 };
 
+export default VehicleInsuranceScreen9;
+
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    padding: 20,
-    flexGrow: 1,
-    paddingBottom: 40,
+    padding: 25,
+    paddingBottom: 60,
   },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#000',
+  stepHeader: {
     marginBottom: 20,
-    textAlign: 'center',
+  },
+  torTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 5,
+  },
+  stepIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 5,
+  },
+  stepLabel: {
+    fontSize: 13,
+    color: '#D50000',
+  },
+  stepText: {
+    fontSize: 10,
+    color: '#888',
+  },
+  stepNumbers: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  stepCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeStep: {
+    backgroundColor: '#D50000',
+  },
+  stepNumber: {
+    fontSize: 12,
+    color: '#777',
+  },
+  activeStepText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  pageTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 15,
+    color: '#222',
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
     marginTop: 15,
     marginBottom: 10,
+    color: '#222',
   },
-  summaryBox: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
+  box: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 15,
+    backgroundColor: '#FAFAFA',
+    marginBottom: 20,
+  },
+  policyText: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 22,
+  },
+  boldText: {
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  paymentMethodBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 12,
+    backgroundColor: '#FAFAFA',
+    marginBottom: 20,
+  },
+  mpesaLogo: {
+    width: 100,
+    height: 40,
+    resizeMode: 'contain',
+    marginRight: 15,
+  },
+  paymentLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    flex: 1,
+  },
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#D50000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#D50000',
   },
   summaryRow: {
     flexDirection: 'row',
@@ -132,125 +295,42 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#555',
   },
   summaryValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#000',
   },
-  paymentOptionBox: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+  totalLabel: {
+    fontWeight: 'bold',
+    color: '#D50000',
   },
-  paymentOptionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  paymentOptionLabel: {
-    fontSize: 16,
-    color: '#555',
-    fontWeight: '600',
-  },
-  mpesaLogo: {
-    width: 80,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  paymentSummaryBox: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  paymentSummaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  inputLabel: {
+    fontSize: 14,
+    color: '#444',
     marginBottom: 8,
   },
-  totalRow: {
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    paddingTop: 10,
-    marginTop: 5,
-  },
-  paymentSummaryLabel: {
-    fontSize: 16,
-    color: '#555',
-  },
-  paymentSummaryValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-  },
-  phoneNumberLabel: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 8,
-    marginTop: 10,
-  },
-  phoneNumberInput: {
+  input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     fontSize: 16,
-    marginBottom: 20,
-    backgroundColor: '#fff',
+    marginBottom: 30,
   },
   payButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#D50000',
+    paddingVertical: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginTop: 10,
     marginBottom: 30,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
   },
   payButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: 16,
-  },
-  verificationContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
-  },
-  verificationCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    marginBottom: 10,
-  },
-  verificationLogo: {
-    width: 50,
-    height: 50,
-    resizeMode: 'contain',
-  },
-  verificationText: {
-    marginTop: 5,
-    color: '#555',
-    fontSize: 14,
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
-
-export default VehicleInsuranceScreen9;

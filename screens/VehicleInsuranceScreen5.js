@@ -1,66 +1,122 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const VehicleInsuranceScreen5 = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  // ✅ Extract all required params from route
+  const {
+    insuranceProduct,
+    registrationNumber,
+    provider,
+    coverStartDate,
+  } = route.params;
+
+  const [documents, setDocuments] = useState({
+    nationalId: null,
+    kraPin: null,
+    logbook: null,
+    debitNote: null,
+    certificate: null,
+  });
+
+  const handleFileSelect = async (field) => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*",
+        multiple: false,
+      });
+
+      if (result?.assets && result.assets.length > 0) {
+        const selectedFile = result.assets[0];
+        setDocuments((prev) => ({ ...prev, [field]: selectedFile }));
+      }
+    } catch (error) {
+      console.warn("File selection failed:", error);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header and Steps */}
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>{insuranceProduct}</Text>
+      </View>
+
+      {/* Step Indicator */}
       <View style={styles.stepIndicator}>
-        <Text style={styles.stepLabel}>● KYC Details</Text>
+        <Text style={styles.stepLabel}>● KYC Documents</Text>
         <View style={styles.stepNumbers}>
-          {[2, 3, 4, 5, 6].map((num, index) => (
-            <View key={index} style={[styles.stepCircle, index === 4 ? styles.activeStep : {}]}>
-              <Text style={[styles.stepNumber, index === 4 ? styles.activeStepText : {}]}>{num}</Text>
+          {[1, 2, 3, 4, 5, 6].map((num) => (
+            <View
+              key={num}
+              style={[
+                styles.stepCircle,
+                num === 5 && styles.activeStep,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.stepNumber,
+                  num === 5 && styles.activeStepText,
+                ]}
+              >
+                {num}
+              </Text>
             </View>
           ))}
         </View>
       </View>
 
-      {/* Title */}
-      <Text style={styles.title}>KYC Details</Text>
+      {/* Section Title */}
+      <Text style={styles.title}>Debit Note Documents</Text>
+      <Text style={styles.uploadText}>Please upload the required debit note documents below.</Text>
 
-      {/* Document Upload Section */}
-      <Text style={styles.sectionTitle}>Upload Documents</Text>
-      <Text style={styles.uploadText}>Please upload all the documents listed below</Text>
-
-      {/* Document Checklist */}
-      <View style={styles.checklistContainer}>
-        {/* National ID */}
-        <View style={styles.checklistItem}>
-          <Text style={styles.checklistTextLeft}>National ID</Text>
-          <TouchableOpacity style={styles.attachButton}>
-            <Text style={styles.attachText}>Attach document</Text>
+      {/* Upload Fields */}
+      {[
+        { label: "National ID", key: "nationalId" },
+        { label: "KRA PIN", key: "kraPin" },
+        { label: "Logbook", key: "logbook" },
+        { label: "Debit Note", key: "debitNote" },
+        { label: "Issued Certificate", key: "certificate" },
+      ].map(({ label, key }) => (
+        <View key={key} style={styles.checklistItem}>
+          <View style={styles.docLeft}>
+            <Ionicons name="cloud-upload-outline" size={24} color="#EB5757" />
+            <Text style={styles.checklistText}>{label}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.attachButton}
+            onPress={() => handleFileSelect(key)}
+          >
+            <Text style={styles.attachText}>
+              {documents[key] ? "Attached" : "Attach document"}
+            </Text>
           </TouchableOpacity>
         </View>
+      ))}
 
-        {/* KRA PIN */}
-        <View style={styles.checklistItem}>
-          <Text style={styles.checklistTextLeft}>KRA PIN</Text>
-          <TouchableOpacity style={styles.attachButton}>
-            <Text style={styles.attachText}>Attach document</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Logbook */}
-        <View style={styles.checklistItem}>
-          <Text style={styles.checklistTextLeft}>Logbook</Text>
-          <TouchableOpacity style={styles.attachButton}>
-            <Text style={styles.attachText}>Attach document</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Divider */}
-      <View style={styles.divider} />
-
-      {/* Next Button */}
+      {/* ✅ Updated Next Button with full param passing */}
       <TouchableOpacity
         style={styles.nextButton}
-        onPress={() => navigation.navigate('VehicleInsurance6')}
+        onPress={() =>
+          navigation.navigate('VehicleInsurance6', {
+            insuranceProduct,
+            registrationNumber,
+            provider,
+            coverStartDate,
+          })
+        }
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
@@ -75,6 +131,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
     padding: 25,
     flexGrow: 1,
+  },
+  headerRow: {
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#000',
   },
   stepIndicator: {
     flexDirection: 'row',
@@ -99,7 +163,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeStep: {
-    backgroundColor: '#4CAF50', // Green color for active step
+    backgroundColor: '#EB5757',
   },
   stepNumber: {
     fontSize: 12,
@@ -107,65 +171,60 @@ const styles = StyleSheet.create({
   },
   activeStepText: {
     color: '#fff',
+    fontWeight: 'bold',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 10,
+    color: '#000',
+    marginBottom: 8,
   },
   uploadText: {
-    fontSize: 14,
-    color: '#7F7F7F',
-    marginBottom: 25,
-  },
-  checklistContainer: {
-    marginBottom: 25,
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 20,
   },
   checklistItem: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    elevation: 1,
   },
-  checklistTextLeft: {
+  docLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  checklistText: {
     fontSize: 15,
-    color: '#333',
+    color: '#000',
   },
   attachButton: {
-    backgroundColor: '#E0E0E0',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#EB5757',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
   },
   attachText: {
     fontSize: 13,
-    color: '#888',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#D1D1D1',
-    marginVertical: 30,
+    color: '#EB5757',
+    fontWeight: 'bold',
   },
   nextButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#EB5757',
     padding: 18,
-    borderRadius: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    marginTop: 20,
   },
   nextButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });

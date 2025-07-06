@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -23,77 +24,142 @@ const VehicleInsuranceScreen3 = () => {
   const [coverStartDate, setCoverStartDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(null);
+  const [showExistingCoverCard, setShowExistingCoverCard] = useState(false);
+  const [tonnage, setTonnage] = useState('');
+  const [passengers, setPassengers] = useState('');
+
+  const requiresTonnage = vehicleType === 'Commercial' || vehicleType === 'Special Classes';
+  const requiresPassengers = vehicleType === 'PSV';
+
+  useEffect(() => {
+    // Clear related state when vehicleType changes
+    console.log('vehicleType:', vehicleType, 'identificationMethod:', identificationMethod);
+    setTonnage('');
+    setPassengers('');
+    setRegistrationNumber('');
+    setSelectedProvider(null);
+    setIdentificationMethod('Vehicle Registration'); // Reset to default to avoid state mismatch
+  }, [vehicleType]);
 
   const providers = [
-    { price: 'KES. 3,300', label: 'Insurer A', mode: 'Flat' },
-    { price: 'KES. 2,800', label: 'Insurer B', mode: 'Annual' },
-    { price: 'KES. 4,500', label: 'Insurer C', mode: 'Once' },
+    { price: 'KES. 3,300', label: 'Insurer A', mode: 'Net' },
+    { price: 'KES. 4,500', label: 'Insurer A', mode: 'Gross' },
   ];
 
   const handleNext = () => {
     if (selectedProvider && registrationNumber) {
-      navigation.navigate('VehicleInsurance4', {
-  vehicleType,
-  insuranceProduct,
-  registrationNumber,
-  coverStartDate: coverStartDate.toISOString(), // ✅ Safe to serialize
-  provider: selectedProvider,
-});
-
+      setShowExistingCoverCard(true);
     }
+  };
+
+  const handleSubmitDebitNote = () => {
+    setShowExistingCoverCard(false);
+    navigation.navigate('VehicleInsurance5', {
+      vehicleType,
+      insuranceProduct,
+      registrationNumber,
+      coverStartDate: coverStartDate.toISOString(),
+      provider: selectedProvider,
+      ...(requiresTonnage && { tonnage }),
+      ...(requiresPassengers && { passengers }),
+    });
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header and Steps */}
-      <View style={styles.stepIndicator}>
-        <Text style={styles.stepLabel}>● Policy details</Text>
-        <View style={styles.stepNumbers}>
-          {[2, 3, 4, 5, 6].map((num, index) => (
-            <View key={index} style={styles.stepCircle}>
-              <Text style={styles.stepNumber}>{num}</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>{insuranceProduct}</Text>
+      </View>
+
+      <View style={styles.policyDetailsHeader}>
+        <Text style={styles.sectionTitle}>Policy Details</Text>
+        <View style={styles.stepIndicatorRow}>
+          {[1, 2, 3, 4, 5, 6].map((step) => (
+            <View key={step} style={step === 3 ? styles.stepCircleActive : styles.stepCircle}>
+              <Text style={step === 3 ? styles.stepTextActive : styles.stepText}>{step}</Text>
             </View>
           ))}
         </View>
       </View>
 
-      {/* Financial Interest */}
-      <Text style={styles.sectionTitle}>Financial Interest</Text>
+      <Text style={styles.subLabel}>Financial interest</Text>
       <View style={styles.rowOptions}>
         {['Yes', 'No'].map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={[styles.radioButton, financialInterest === option && styles.selectedRadio]}
-            onPress={() => setFinancialInterest(option)}
-          >
+          <TouchableOpacity key={option} style={styles.radioItem} onPress={() => setFinancialInterest(option)}>
+            <View style={styles.radioCircle}>
+              {financialInterest === option && <View style={styles.radioInnerCircle} />}
+            </View>
             <Text style={styles.radioText}>{option}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Vehicle Identification */}
-      <Text style={styles.sectionTitle}>Select Vehicle Identification</Text>
-      <View style={styles.rowOptions}>
+      <Text style={styles.subLabel}>Select Vehicle identification</Text>
+      <View style={{ backgroundColor: 'transparent' }}>
         {['Vehicle Registration', 'Chassis Number'].map((option) => (
           <TouchableOpacity
             key={option}
-            style={[styles.radioButton, identificationMethod === option && styles.selectedRadio]}
-            onPress={() => setIdentificationMethod(option)}
+            style={[styles.identificationOption, identificationMethod === option && styles.selectedIdentificationOption]}
+            onPress={() => {
+              console.log('Selected identification:', option);
+              setIdentificationMethod(option);
+            }}
           >
-            <Text style={styles.radioText}>{option}</Text>
+            <Text style={styles.identificationText}>{option}</Text>
+            {identificationMethod === option && <Ionicons name="checkmark-circle" size={20} color="#EB5757" />}
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Vehicle Reg Input */}
+      <Text style={styles.subLabel}>Vehicle registration Number</Text>
       <TextInput
         style={styles.input}
-        placeholder="KDA 432A"
+        placeholder="KDN 423A"
         value={registrationNumber}
         onChangeText={setRegistrationNumber}
+        autoComplete="off"
+        autoCorrect={false}
+        importantForAutofill="no"
       />
 
-      {/* Date Picker */}
+      {/* Tonnage field */}
+      {requiresTonnage && (
+        <>
+          <Text style={styles.subLabel}>Vehicle Tonnage (1 - 31)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter tonnage"
+            keyboardType="numeric"
+            value={tonnage}
+            onChangeText={setTonnage}
+            maxLength={2}
+            autoComplete="off"
+            autoCorrect={false}
+            importantForAutofill="no"
+            blurOnSubmit={false}
+          />
+        </>
+      )}
+
+      {/* Passengers field */}
+      {requiresPassengers && (
+        <>
+          <Text style={styles.subLabel}>Number of Passengers</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter number of passengers"
+            keyboardType="numeric"
+            value={passengers}
+            onChangeText={setPassengers}
+            autoComplete="off"
+            autoCorrect={false}
+            importantForAutofill="no"
+            blurOnSubmit={false}
+          />
+        </>
+      )}
+
+      <Text style={styles.subLabel}>Cover start date</Text>
       <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.inputDate}>
         <Text>{coverStartDate.toDateString()}</Text>
         <Ionicons name="calendar-outline" size={20} color="#000" />
@@ -110,30 +176,30 @@ const VehicleInsuranceScreen3 = () => {
         />
       )}
 
-      {/* Provider List */}
-      <Text style={styles.sectionTitle}>Select a Provider</Text>
-      <Text style={styles.hintText}>
-        Please note that processing times depend on certificate availability. Select to proceed
-      </Text>
-      {providers.map((item, index) => (
-        <TouchableOpacity
-          key={index}
-          style={[styles.card, selectedProvider?.label === item.label && styles.cardSelected]}
-          onPress={() => setSelectedProvider(item)}
-        >
-          <Text style={styles.cardPrice}>{item.price}</Text>
-          <Text style={styles.cardLabel}>{item.label}</Text>
-          <Text style={styles.cardMode}>{item.mode}</Text>
-        </TouchableOpacity>
-      ))}
+      {registrationNumber.trim() !== '' && (
+        <>
+          <Text style={styles.subLabel}>Select a Provider</Text>
+          <Text style={styles.helperText}>
+            Please note that processing times depend on certificate availability.
+          </Text>
 
-      {/* Dropdown Placeholder */}
-      <TouchableOpacity style={styles.dropdownBox}>
-        <Text style={styles.dropdownText}>{selectedProvider?.label || 'Select a Provider'}</Text>
-        <Ionicons name="chevron-down" size={16} color="#000" />
-      </TouchableOpacity>
+          {providers.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.providerCard,
+                selectedProvider?.label === item.label && selectedProvider?.mode === item.mode && styles.providerSelected,
+              ]}
+              onPress={() => setSelectedProvider(item)}
+            >
+              <Text style={styles.price}>{item.price}</Text>
+              <Text style={styles.providerName}>{item.label}</Text>
+              <Text style={styles.mode}>{item.mode}</Text>
+            </TouchableOpacity>
+          ))}
+        </>
+      )}
 
-      {/* Next Button */}
       <TouchableOpacity
         style={[styles.nextButton, !(selectedProvider && registrationNumber) && { backgroundColor: '#ccc' }]}
         disabled={!(selectedProvider && registrationNumber)}
@@ -141,6 +207,43 @@ const VehicleInsuranceScreen3 = () => {
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
+
+      {/* Modal */}
+      <Modal visible={showExistingCoverCard} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <TouchableOpacity onPress={() => setShowExistingCoverCard(false)} style={styles.closeIcon}>
+              <Ionicons name="close" size={24} color="#000" />
+            </TouchableOpacity>
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={36}
+              color="#EB5757"
+              style={{ alignSelf: 'center', marginBottom: 10 }}
+            />
+            <Text style={styles.cardTitle}>Vehicle Has Existing Cover</Text>
+            <Text style={styles.cardNote}>
+              Please adjust the start date of the new policy to begin after the existing cover expires
+            </Text>
+            <Text style={styles.detailLabel}>Vehicle Registration Number</Text>
+            <Text style={styles.detailValue}>{registrationNumber}</Text>
+            <Text style={styles.detailLabel}>Active Certificate Number</Text>
+            <Text style={styles.detailValue}>CH342833</Text>
+            <Text style={styles.detailLabel}>Issued By</Text>
+            <Text style={styles.detailValue}>{selectedProvider?.label}</Text>
+            <Text style={styles.detailLabel}>Expiry Date</Text>
+            <Text style={styles.detailValue}>31/01/2026</Text>
+
+            <TouchableOpacity style={styles.adjustButton} onPress={() => setShowDatePicker(true)}>
+              <Text style={styles.adjustButtonText}>Adjust Start Date</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitDebitNote}>
+              <Text style={styles.submitButtonText}>Submit Debit Note</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -149,121 +252,241 @@ export default VehicleInsuranceScreen3;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     padding: 20,
+    paddingTop: 40,
+    backgroundColor: '#fff',
     flexGrow: 1,
   },
-  stepIndicator: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  stepLabel: {
-    fontSize: 14,
+  headerTitle: {
     fontWeight: 'bold',
+    fontSize: 18,
     color: '#000',
+    flex: 1,
   },
-  stepNumbers: {
+  policyDetailsHeader: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  stepIndicatorRow: {
+    flexDirection: 'row',
+    gap: 6,
   },
   stepCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#e5e5e5',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#E5E5E5',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  stepNumber: {
+  stepCircleActive: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#EB5757',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepText: {
     fontSize: 12,
     color: '#555',
   },
-  sectionTitle: {
+  stepTextActive: {
+    color: '#fff',
     fontWeight: 'bold',
-    marginVertical: 10,
+    fontSize: 12,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#000',
+  },
+  subLabel: {
+    fontWeight: '600',
+    marginBottom: 8,
+    fontSize: 14,
   },
   rowOptions: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
+    gap: 12,
+    marginBottom: 12,
+    alignItems: 'center',
   },
-  radioButton: {
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
+  radioItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  selectedRadio: {
-    borderColor: '#007AFF',
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 2,
+    borderColor: '#EB5757',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  radioInnerCircle: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EB5757',
   },
   radioText: {
+    fontSize: 14,
+    color: '#000',
+  },
+  identificationOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  selectedIdentificationOption: {
+    borderColor: '#EB5757',
+    backgroundColor: '#FFE5E5', // Light red background for selected state
+  },
+  identificationText: {
+    fontSize: 14,
     color: '#000',
   },
   input: {
-    borderColor: '#ccc',
     borderWidth: 1,
-    padding: 12,
+    borderColor: '#ccc',
+    padding: 14,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   inputDate: {
-    borderColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 14,
     borderWidth: 1,
-    padding: 12,
+    borderColor: '#ccc',
     borderRadius: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  card: {
-    backgroundColor: '#f4f4f4',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  cardSelected: {
-    borderColor: '#007AFF',
-    borderWidth: 2,
-  },
-  cardPrice: {
-    fontWeight: 'bold',
-  },
-  cardLabel: {
-    fontSize: 14,
-  },
-  cardMode: {
-    fontSize: 12,
-    color: '#555',
-  },
-  dropdownBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#f0f0f0',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  dropdownText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  hintText: {
+  helperText: {
     fontSize: 12,
     color: '#666',
+    marginBottom: 8,
+  },
+  providerCard: {
+    backgroundColor: '#f4f4f4',
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 10,
   },
+  providerSelected: {
+    borderWidth: 2,
+    borderColor: '#EB5757',
+  },
+  price: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  providerName: {
+    fontSize: 14,
+    color: '#000',
+  },
+  mode: {
+    fontSize: 12,
+    color: '#666',
+  },
   nextButton: {
+    backgroundColor: '#EB5757',
+    paddingVertical: 16,
+    borderRadius: 10,
     marginTop: 20,
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 12,
     alignItems: 'center',
   },
   nextButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
+  },
+  adjustButton: {
+    backgroundColor: '#fff',
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#EB5757',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  adjustButtonText: {
+    color: '#EB5757',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  closeIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: '#FFE5E5',
+    padding: 20,
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 400,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  cardNote: {
+    fontSize: 12,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  detailLabel: {
+    fontSize: 12,
+    color: '#555',
+    marginTop: 10,
+  },
+  detailValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+  },
+  submitButton: {
+    backgroundColor: '#EB5757',
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
   },
 });

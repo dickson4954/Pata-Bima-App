@@ -13,18 +13,21 @@ import MainTabs from './screens/MainTabs';
 import VehicleInsuranceScreen1 from './screens/VehicleInsuranceScreen1';
 import VehicleInsuranceScreen2 from './screens/VehicleInsuranceScreen2';
 import VehicleInsuranceScreen3 from './screens/VehicleInsuranceScreen3';
-import VehicleInsuranceScreen4 from './screens/VehicleInsuranceScreen4';
+
 import VehicleInsuranceScreen5 from './screens/VehicleInsuranceScreen5';
 import VehicleInsuranceScreen6 from './screens/VehicleInsuranceScreen6';
 import VehicleInsuranceScreen7 from './screens/VehicleInsuranceScreen7';
 import VehicleInsuranceScreen8 from './screens/VehicleInsuranceScreen8';
 import VehicleInsuranceScreen9 from './screens/VehicleInsuranceScreen9';
+import VehicleInsuranceScreen10 from './screens/VehicleInsuranceScreen10';
+import VehicleInsuranceScreen11 from './screens/VehicleInsuranceScreen11';
 
-// Commercial Vehicle Insurance Screens
-import CommercialInsurance1 from './screens/CommercialInsurance1';
-import CommercialInsurance2 from './screens/CommercialInsurance2';
-import CommercialInsurance3 from './screens/CommercialInsurance3';
-import CommercialInsurance4 from './screens/CommercialInsurance4';
+import VehicleComprehensiveScreen3 from './screens/VehicleComprehensiveScreen3';
+import VehicleComprehensiveScreen4 from './screens/VehicleComprehensiveScreen4';
+import VehicleComprehensiveScreen5 from './screens/VehicleComprehensiveScreen5';
+
+import ViewQuoteScreen from './screens/ViewQuoteScreen';
+
 
 
 const Stack = createNativeStackNavigator();
@@ -44,34 +47,21 @@ export default function App() {
         <Stack.Screen name="VehicleInsurance1" component={VehicleInsuranceScreen1} />
         <Stack.Screen name="VehicleInsurance2" component={VehicleInsuranceScreen2} />
         <Stack.Screen name="VehicleInsurance3" component={VehicleInsuranceScreen3} />
-        <Stack.Screen name="VehicleInsurance4" component={VehicleInsuranceScreen4} />
+        
         <Stack.Screen name="VehicleInsurance5" component={VehicleInsuranceScreen5} />
         <Stack.Screen name="VehicleInsurance6" component={VehicleInsuranceScreen6} />
         <Stack.Screen name="VehicleInsurance7" component={VehicleInsuranceScreen7} />
         <Stack.Screen name="VehicleInsurance8" component={VehicleInsuranceScreen8} />
         <Stack.Screen name="VehicleInsurance9" component={VehicleInsuranceScreen9} />
+        <Stack.Screen name="VehicleInsurance10" component={VehicleInsuranceScreen10} />
+         <Stack.Screen name="VehicleInsurance11" component={VehicleInsuranceScreen11} />
 
-        {/* Commercial Vehicle Insurance Flow */}
-        <Stack.Screen 
-          name="CommercialInsurance1" 
-          component={CommercialInsurance1}
-          options={{ title: 'Commercial Insurance' }}
-        />
-        <Stack.Screen 
-          name="CommercialInsurance2" 
-          component={CommercialInsurance2}
-          options={{ title: 'Policy Details' }}
-        />
-         <Stack.Screen 
-          name="CommercialInsurance3" 
-          component={CommercialInsurance3}
-          options={{ title: 'Vehicle Details' }}
-        />
-        <Stack.Screen 
-          name="CommercialInsurance4" 
-          component={CommercialInsurance4}
-          options={{ title: 'KYC Documents' }}
-        />
+        <Stack.Screen name="VehicleComprehensive3" component={VehicleComprehensiveScreen3} />
+         <Stack.Screen name="VehicleComprehensive4" component={VehicleComprehensiveScreen4} />
+         <Stack.Screen name="VehicleComprehensive5" component={VehicleComprehensiveScreen5} />
+
+        <Stack.Screen name="ViewQuoteScreen" component={ViewQuoteScreen} />
+
 
 
         {/* Other Insurance Types */}

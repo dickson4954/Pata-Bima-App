@@ -5,30 +5,48 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+
+const screenWidth = Dimensions.get('window').width;
+
+const insuranceProducts = [
+  { label: 'Vehicle Insurance', icon: 'car-sport-outline' },
+  { label: 'Medical Insurance', icon: 'medkit-outline' },
+  { label: 'WIBA Insurance', icon: 'briefcase-outline' },
+  { label: 'Last Expense', icon: 'heart-outline' },
+  { label: 'Travel Insurance', icon: 'airplane-outline' },
+  { label: 'Personal Accident', icon: 'body-outline' },
+  { label: 'Professional Indemnity', icon: 'briefcase-outline' },
+  { label: 'Domestic Package', icon: 'home-outline' },
+];
+
+const chunkArray = (array, size) => {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+};
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Extensions');
 
   const handleProductPress = (product) => {
-    if (product === 'Motor Vehicle Insurance') {
+    if (product === 'Vehicle Insurance') {
       navigation.navigate('VehicleInsurance1');
     }
-    // Add other product navigations as needed
   };
 
   const renderExtensions = () => (
     <View style={styles.extensionsList}>
-      {['KBH123B', 'KDA456X'].map((plate, index) => (
+      {['KBH123B', 'KDA456X'].map((plate) => (
         <View
           key={plate}
-          style={[
-            styles.extensionCard,
-            { backgroundColor: '#F8D7DA' },
-          ]}
+          style={[styles.extensionCard, { backgroundColor: '#F8D7DA' }]}
         >
           <View style={styles.extensionRow}>
             <View>
@@ -62,92 +80,99 @@ const HomeScreen = () => {
     </View>
   );
 
+  const pages = chunkArray(insuranceProducts, 4);
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <Text style={styles.greeting}>Good Morning</Text>
-            <Text style={styles.username}>John Doe</Text>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarText}>K</Text>
           </View>
-          <Ionicons name="notifications-outline" size={24} color="#E30613" />
+          <View style={styles.userInfo}>
+            <Text style={styles.greeting}>Good Afternoon</Text>
+            <Text style={styles.username}>Kelvin Kahoi</Text>
+            <View style={styles.statsRow}>
+              <Text style={styles.statsLabel}>Today</Text>
+              <Text style={styles.statsLabel}>Since Last Commission</Text>
+            </View>
+          </View>
+          <Ionicons name="notifications-outline" size={24} color="#000" />
         </View>
 
         {/* My Sales Card */}
-        <View style={styles.salesCard}>
-          <View style={styles.salesTopRow}>
-            <Text style={styles.salesTitle}>My Sales</Text>
-            <Text style={styles.salesPeriod}>
-              Period: <Text style={styles.redText}>2 Day</Text>
-            </Text>
-          </View>
-          <View style={styles.salesBottomRow}>
-            <View>
-              <Text style={styles.subLabel}>Next Commission</Text>
-              <Text style={styles.redText}>Date: Tue, July 1</Text>
+        <View style={styles.mySalesCard}>
+          <View style={styles.mySalesTop}>
+            <View style={styles.topStatsRow}>
+              <View>
+                <Text style={styles.mySalesTitle}>My Sales</Text>
+                <Text style={styles.statsTitle}>Kes. 0</Text>
+              </View>
+              <View>
+                <Text style={styles.statsTitle}>1 Day</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.subLabel}>Policies Sold</Text>
-              <Text style={styles.redText}>2</Text>
+          </View>
+
+          <View style={styles.mySalesBottom}>
+            <View style={styles.salesInfoRowFlat}>
+              <View>
+                <Text style={styles.salesInfoLabelBlack}>Next Commission Date</Text>
+                <Text style={styles.salesInfoValueBlack}>Wed, Jul 16</Text>
+              </View>
+              <View>
+                <Text style={styles.salesInfoLabelBlack}>Policies Sold</Text>
+                <Text style={styles.salesInfoValueBlack}>0</Text>
+              </View>
             </View>
           </View>
         </View>
 
         {/* Insurance Products */}
-        <Text style={styles.sectionTitle}>Section: Insurance Products</Text>
-        <View style={styles.productsRow}>
-          <TouchableOpacity
-            style={styles.productBox}
-            onPress={() => handleProductPress('Motor Vehicle Insurance')}
-          >
-            <Ionicons name="car-sport-outline" size={28} color="#E30613" />
-            <Text style={styles.productText}>Motor Vehicle Insurance</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.productBox}>
-            <Ionicons name="medkit-outline" size={28} color="#E30613" />
-            <Text style={styles.productText}>Medical Insurance</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.productBox}>
-            <Ionicons name="briefcase-outline" size={28} color="#E30613" />
-            <Text style={styles.productText}>WIBA Insurance</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.productBox}>
-            <Ionicons name="heart-outline" size={28} color="#E30613" />
-            <Text style={styles.productText}>Last Expense</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.sectionTitle}>Insurance Products</Text>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+        >
+          {pages.map((group, index) => (
+            <View key={index} style={styles.productPage}>
+              {group.map((product, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.productBox}
+                  onPress={() => handleProductPress(product.label)}
+                >
+                  <Ionicons name={product.icon} size={28} color="#E30613" />
+                  <Text style={styles.productText}>{product.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        </ScrollView>
 
         {/* Campaigns */}
-        <Text style={styles.sectionTitle}>Section: Campaigns</Text>
+        <Text style={styles.sectionTitle}>Campaigns</Text>
+        <View style={{ height: 100 }} />
 
-        {/* Spacer between Campaigns and Upcoming Extensions */}
-        <View style={{ height: 70 }} />
-
-        {/* Upcoming Extensions */}
-        <Text style={styles.sectionTitle}>Section: Upcoming Extensions</Text>
+        {/* Upcoming Renewals */}
+        <Text style={styles.sectionTitle}>Upcoming Renewals</Text>
         <View style={styles.toggleTabs}>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'Renewals' ? styles.activeTab : styles.inactiveTab]}
             onPress={() => setActiveTab('Renewals')}
           >
-            <Text
-              style={activeTab === 'Renewals' ? styles.activeTabText : styles.inactiveTabText}
-            >
-              Renewals (8)
+            <Text style={activeTab === 'Renewals' ? styles.activeTabText : styles.inactiveTabText}>
+              Renewals (0)
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'Extensions' ? styles.activeTab : styles.inactiveTab]}
             onPress={() => setActiveTab('Extensions')}
           >
-            <Text
-              style={activeTab === 'Extensions' ? styles.activeTabText : styles.inactiveTabText}
-            >
-              Extensions (2)
+            <Text style={activeTab === 'Extensions' ? styles.activeTabText : styles.inactiveTabText}>
+              Extensions (0)
             </Text>
           </TouchableOpacity>
         </View>
@@ -164,48 +189,101 @@ const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 30, backgroundColor: '#fff' },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-  },
-  userInfo: {},
-  greeting: { fontSize: 16, color: '#000' },
-  username: { fontSize: 18, fontWeight: 'bold' },
-  salesCard: {
-    backgroundColor: '#E30613',
-    margin: 15,
-    borderRadius: 12,
-    padding: 15,
-  },
-  salesTopRow: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  avatarCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: { fontSize: 18, fontWeight: 'bold', color: '#000' },
+  userInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  greeting: { fontSize: 14, color: '#555' },
+  username: { fontSize: 18, fontWeight: 'bold', color: '#000' },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 20,
+    marginTop: 4,
+  },
+  statsLabel: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    color: '#333',
+  },
+  mySalesCard: {
+    marginHorizontal: 15,
+    borderRadius: 12,
+    overflow: 'hidden',
     marginBottom: 10,
   },
-  salesBottomRow: {
+  mySalesTop: {
+    backgroundColor: '#E30613',
+    padding: 15,
+  },
+  mySalesBottom: {
+    backgroundColor: '#fff',
+    padding: 15,
+  },
+  topStatsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  salesTitle: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-  salesPeriod: { color: 'white' },
-  redText: { color: 'white', fontWeight: 'bold' },
-  subLabel: { color: 'white', fontSize: 12 },
-  sectionTitle: {
+  statsTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  mySalesTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  salesInfoRowFlat: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  salesInfoLabelBlack: {
+    color: '#000',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    marginBottom: 2,
+  },
+  salesInfoValueBlack: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
+    sectionTitle: {
     marginHorizontal: 15,
     marginTop: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    fontSize: 16,
+    color: '#000',
   },
-  productsRow: {
+
+  productPage: {
+    width: screenWidth,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginTop: 10,
+    justifyContent: 'space-evenly',
+    paddingVertical: 20,
   },
   productBox: {
+    width: screenWidth / 2.5,
+    marginVertical: 10,
     alignItems: 'center',
-    margin: 10,
-    width: '40%',
   },
   productText: {
     textAlign: 'center',
@@ -220,8 +298,8 @@ const styles = StyleSheet.create({
   },
   tab: {
     borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 24,
   },
   activeTab: {
     backgroundColor: '#E30613',
@@ -229,13 +307,15 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 14,
   },
   inactiveTab: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#E0E0E0',
   },
   inactiveTabText: {
     color: '#555',
     fontWeight: 'bold',
+    fontSize: 14,
   },
   extensionsList: {
     marginHorizontal: 15,

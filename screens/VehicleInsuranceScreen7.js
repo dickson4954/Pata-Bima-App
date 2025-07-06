@@ -11,16 +11,19 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 const VehicleInsuranceScreen7 = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  
-  // Get the passed parameters
+
+  // Fetching data passed from Screen 5 or 6
   const {
-    kraPin = 'A09B0030050023',
-    firstName = 'Join',
+    kraPin = 'A099003030303',
+    firstName = 'John',
     lastName = 'Doe',
-    registration = 'KDA 42304',
-    chassisNo = 'NCSRC 0001860',
-    make = 'TOROTA',
-    model = 'CIDUJK DND'
+    registrationNumber = 'Not provided',
+    chassisNo = 'NCKSC - 000950',
+    make = 'TOYOTA',
+    model = 'CDBJKE-DMD',
+    provider,
+    insuranceProduct,
+    coverStartDate,
   } = route.params || {};
 
   const handleConfirm = () => {
@@ -28,162 +31,208 @@ const VehicleInsuranceScreen7 = () => {
       kraPin,
       firstName,
       lastName,
-      registration,
+      registrationNumber,
       chassisNo,
       make,
-      model
+      model,
+      provider,
+      insuranceProduct,
+      coverStartDate,
     });
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header with Curved Container */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Details Confirmation</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>TOR For Private</Text>
       </View>
 
-      {/* Content Section */}
-      <View style={styles.contentContainer}>
+      {/* Step Indicator */}
+      <View style={styles.stepIndicator}>
+        <Text style={styles.stepTextActive}>1 KYC Details</Text>
+        <View style={styles.stepNumbers}>
+          {[2, 3, 4, 5, 6].map((step) => (
+            <View key={step} style={styles.stepCircle}>
+              <Text style={styles.stepNumber}>{step}</Text>
+            </View>
+          ))}
+        </View>
+        <Text style={styles.stepIndicatorLabel}>step indicator:</Text>
+      </View>
+
+      {/* Main Card */}
+      <View style={styles.card}>
+        <View style={styles.cardHeaderBar} />
+        <Text style={styles.cardTitle}>Scan Complete</Text>
+
         {/* Personal Details */}
-        <Text style={styles.sectionTitle}>Personal Details</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>KRA PIN</Text>
-          <Text style={styles.detailValue}>{kraPin}</Text>
+        <Text style={styles.sectionHeader}>Verify Personal Details</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>KRA PIN</Text>
+          <Text style={styles.value}>{kraPin}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>First Name</Text>
-          <Text style={styles.detailValue}>{firstName}</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>First Name</Text>
+          <Text style={styles.value}>{firstName}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Last Name</Text>
-          <Text style={styles.detailValue}>{lastName}</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Last Name</Text>
+          <Text style={styles.value}>{lastName}</Text>
         </View>
 
-        {/* Vehicle Details */}
-        <Text style={styles.sectionTitle}>Vehicle Details</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Registration</Text>
-          <Text style={styles.detailValue}>{registration}</Text>
+        {/* Vehicle Info */}
+        <Text style={styles.sectionHeader}>Verify Vehicle Details</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Car Registration</Text>
+          <Text style={styles.value}>{registrationNumber}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Chassis No</Text>
-          <Text style={styles.detailValue}>{chassisNo}</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Chassis No</Text>
+          <Text style={styles.value}>{chassisNo}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Make</Text>
-          <Text style={styles.detailValue}>{make}</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Make</Text>
+          <Text style={styles.value}>{make}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Model</Text>
-          <Text style={styles.detailValue}>{model}</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Model</Text>
+          <Text style={styles.value}>{model}</Text>
         </View>
 
         {/* Buttons */}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity 
-            style={styles.editButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.editButtonText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.confirmButton}
-            onPress={handleConfirm}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.confirmButtonText}>Confirm & Proceed</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.editButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.editButtonText}>Edit</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+          <Text style={styles.confirmButtonText}>Confirm & Proceed</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
 
+export default VehicleInsuranceScreen7;
+
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fff',
     padding: 20,
     flexGrow: 1,
   },
-  headerContainer: {
-    backgroundColor: '#E0E0E0',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 20,
-    alignItems: 'center',
+  headerRow: {
+    marginBottom: 15,
   },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  contentContainer: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  sectionTitle: {
+  headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 20,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  detailLabel: {
-    fontSize: 16,
-    color: '#555',
-  },
-  detailValue: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: '#000',
   },
-  buttonsContainer: {
+  stepIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 25,
+  },
+  stepTextActive: {
+    fontSize: 14,
+    color: '#EB5757',
+    fontWeight: 'bold',
+  },
+  stepNumbers: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  stepCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#EB5757',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepNumber: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  stepIndicatorLabel: {
+    fontSize: 10,
+    color: '#555',
+    position: 'absolute',
+    right: 0,
+    top: 18,
+  },
+  card: {
+    backgroundColor: '#FFE5E5',
+    borderRadius: 20,
+    padding: 20,
+    paddingBottom: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  cardHeaderBar: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#ccc',
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 30,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    marginBottom: 8,
+  },
+  label: {
+    color: '#555',
+    fontSize: 13,
+  },
+  value: {
+    color: '#000',
+    fontWeight: '600',
+    fontSize: 14,
   },
   editButton: {
-    paddingHorizontal: 25,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: '#EB5757',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginTop: 20,
   },
   editButtonText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#EB5757',
+    fontWeight: 'bold',
   },
   confirmButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 25,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: '#EB5757',
+    paddingVertical: 14,
+    borderRadius: 10,
     alignItems: 'center',
-    minWidth: 180,
+    marginTop: 20,
   },
   confirmButtonText: {
-    color: '#FFF',
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
 });
-
-export default VehicleInsuranceScreen7;

@@ -6,8 +6,11 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 const QuotationScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -47,31 +50,49 @@ const QuotationScreen = () => {
           <TextInput placeholder="Search" style={styles.searchInput} />
         </View>
 
-        {/* Filter Buttons */}
-        <View style={styles.filters}>
-          {['All', 'Applied', 'Unapplied'].map((filter) => (
-            <TouchableOpacity
-              key={filter}
+        {/* Filters: All + toggle */}
+        <View style={styles.filtersRow}>
+          <TouchableOpacity
+            style={[
+              styles.filterBtn,
+              selectedFilter === 'All' && styles.activeBtn,
+            ]}
+            onPress={() => setSelectedFilter('All')}
+          >
+            <Text
               style={[
-                styles.filterBtn,
-                selectedFilter === filter && styles.activeFilterBtn,
+                styles.filterText,
+                selectedFilter === 'All' && styles.activeText,
               ]}
-              onPress={() => setSelectedFilter(filter)}
             >
-              <Text
+              All
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.toggleContainer}>
+            {['Applied', 'Unapplied'].map((filter) => (
+              <TouchableOpacity
+                key={filter}
                 style={[
-                  styles.filterText,
-                  styles.redFilterText,
-                  selectedFilter === filter && styles.activeFilterText,
+                  styles.toggleBtn,
+                  selectedFilter === filter && styles.activeToggleBtn,
                 ]}
+                onPress={() => setSelectedFilter(filter)}
               >
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.toggleText,
+                    selectedFilter === filter && styles.activeToggleText,
+                  ]}
+                >
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Quotation Cards */}
+        {/* Cards */}
         {filteredQuotations.map((q, i) => (
           <View key={i} style={styles.card}>
             <View style={styles.cardHeader}>
@@ -83,7 +104,7 @@ const QuotationScreen = () => {
               <View
                 style={[
                   styles.statusTag,
-                  styles.appliedTag,
+                  q.applied ? styles.appliedTag : styles.unappliedTag,
                 ]}
               >
                 <Text style={styles.statusText}>
@@ -92,7 +113,6 @@ const QuotationScreen = () => {
               </View>
             </View>
 
-            {/* Body Section */}
             <View style={styles.cardBody}>
               <View style={styles.row}>
                 <Text style={styles.label}>Insurance Provider:</Text>
@@ -112,7 +132,6 @@ const QuotationScreen = () => {
               </View>
             </View>
 
-            {/* Buttons */}
             <TouchableOpacity style={styles.button}>
               <Text>View Quotation</Text>
             </TouchableOpacity>
@@ -140,29 +159,52 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   searchInput: { marginLeft: 10, flex: 1 },
-  filters: {
+
+  filtersRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 15,
+    alignItems: 'center',
+    marginBottom: 20,
   },
   filterBtn: {
     paddingVertical: 6,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     borderRadius: 20,
-    backgroundColor: '#eee',
+    borderWidth: 1,
+    borderColor: '#E30613',
+    marginRight: 10,
   },
-  activeFilterBtn: {
+  activeBtn: {
     backgroundColor: '#E30613',
   },
   filterText: {
     fontWeight: 'bold',
-  },
-  redFilterText: {
     color: '#E30613',
   },
-  activeFilterText: {
-    color: 'white',
+  activeText: {
+    color: '#fff',
   },
+
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#eee',
+    borderRadius: 20,
+  },
+  toggleBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 18,
+    borderRadius: 20,
+  },
+  activeToggleBtn: {
+    backgroundColor: '#E30613',
+  },
+  toggleText: {
+    color: '#E30613',
+    fontWeight: 'bold',
+  },
+  activeToggleText: {
+    color: '#fff',
+  },
+
   card: {
     backgroundColor: '#f9f9f9',
     padding: 15,
@@ -184,6 +226,9 @@ const styles = StyleSheet.create({
   },
   appliedTag: {
     backgroundColor: '#E30613',
+  },
+  unappliedTag: {
+    backgroundColor: '#aaa',
   },
   statusText: {
     fontSize: 10,

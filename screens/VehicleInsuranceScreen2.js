@@ -7,8 +7,98 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+
+const insuranceProductsByVehicleType = {
+  Private: {
+    thirdParty: [
+      'TOR FOR Private',
+      'Private Third-party',
+      'Private Third-party Extensible',
+      'Private Motorcycle Third-party',
+    ],
+    comprehensive: [
+        'Private Comprehensive',
+
+    ],
+  },
+  Commercial: {
+    thirdParty: [
+      'TOR for Commercial',
+      'Own Goods Third-Party',
+      'General Cartage Third-Party',
+      'Commercial TukTuk Third-Party',
+      'Commercial TukTuk Third-Party Extensible',
+      'Own Goods Third-Party Extensible',
+      'General Cartage Third-Party Extensible',
+    ],
+    comprehensive: [
+        'Commercial TukTuk Comprehensive',
+        'General Cartage Comprehensive',
+        'Own Goods Comprehensive'
+    ], 
+  },
+  TukTuk: {
+    thirdParty: [
+      'PSV Tuk-tuk Third-party',
+      'PSV Tuk-tuk Third-party Extendible',
+      'Commercial TUKTUK Third-Party',
+      'Commercial TUKTUK Third-Party Extendible'
+    ],
+    comprehensive: [
+      'Commercial TukTuk Comprehensive',
+      'PSV Tuk-Tuk Comprehensive'
+    ],
+  },
+  Motorcycle: {
+    thirdParty: [
+      'Private Motorcycle Third-party',
+      'PSV Motorcycle Third-Party',
+      'PSV Motorcycle Third-party 6 Months',
+
+    ],
+    comprehensive: [
+        'Private Motorcycle Comprehensive',
+        'PSV Motorcycle Comprehensive',
+        'PSV Motorcycle Comprehensive 6 Months'
+    ],
+  },
+  'Special Classes': {
+    thirdParty: [
+        'Agricultural Tractor Third-party',
+        'Commercial Institutional Third-Party Extendible',
+        'Commercial Institutional Third-Party',
+        'KG Plate Third-Party',
+        'Driving School Third-Party'
+
+    ],
+    comprehensive: [
+        'Agricultural Tractor Comprehensive',
+        'Commercial Institutional Comprehensive',
+        'Driving School Comprehensive',
+        'Fuel Tankers Comprehensive',
+        'Commercial Ambulance Comprehensive'
+
+    ],
+  },
+  PSV: {
+    thirdParty: [
+        'PSV Uber Third-party',
+        'PSV Tuk-Tuk Third-Party',
+        'PSV Tuk-Tuk Third-Party Extendible',
+        '1 Month PSV Matatu Third-Party',
+        '2 Weeks PSV Matatu Third-Party',
+        'PSV Uber Third-Party Extendible',
+        'PSV Tour van Third-Party',
+        '1 Week PSV Matatu Third-Party'
+    ],
+    comprehensive: [
+        'PSV Uber Comprehensive',
+        'PSV Tour Van Comprehensive'
+    ],
+  },
+};
 
 const VehicleInsuranceScreen2 = () => {
   const navigation = useNavigation();
@@ -19,59 +109,73 @@ const VehicleInsuranceScreen2 = () => {
   const [thirdPartyOpen, setThirdPartyOpen] = useState(true);
   const [comprehensiveOpen, setComprehensiveOpen] = useState(false);
 
-  const thirdPartyOptions = [
-    'TPO For Private',
-    'Private Third-party',
-    'Private Third-party Extensible',
-    'Private Motorcycle Third-party',
-  ];
-
-  const comprehensiveOptions = ['Private Comprehensive'];
+  const thirdPartyOptions = insuranceProductsByVehicleType[vehicleType]?.thirdParty || [];
+  const comprehensiveOptions = insuranceProductsByVehicleType[vehicleType]?.comprehensive || [];
 
   const handleNext = () => {
-    if (selectedProduct) {
-      navigation.navigate('VehicleInsurance3', {
-        vehicleType,
-        insuranceProduct: selectedProduct,
-      });
+  if (!selectedProduct) return;
+
+  const isComprehensive = comprehensiveOptions.includes(selectedProduct);
+
+  navigation.navigate(
+    isComprehensive ? 'VehicleComprehensive3' : 'VehicleInsurance3',
+    {
+      vehicleType,
+      insuranceProduct: selectedProduct,
     }
-  };
+  );
+};
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Step Indicator */}
-      <View style={styles.stepIndicator}>
+      <View style={styles.stepRow}>
         <Text style={styles.stepLabel}>Insurance Type</Text>
-        <View style={styles.stepNumbers}>
-          {[2, 3, 4, 5, 6].map((num) => (
-            <View key={num} style={styles.stepCircle}>
-              <Text style={styles.stepNumber}>{num}</Text>
-            </View>
-          ))}
-        </View>
+        {[1, 2, 3, 4, 5, 6].map((num) => (
+          <View
+            key={num}
+            style={num === 2 ? styles.stepCircleActive : styles.stepCircle}
+          >
+            <Text style={num === 2 ? styles.stepTextActive : styles.stepText}>
+              {num}
+            </Text>
+          </View>
+        ))}
       </View>
 
-      {/* Vehicle Type Dropdown */}
-      <Text style={styles.dropdownLabel}>Dropdown: Select Vehicle type</Text>
-      <View style={styles.dropdownBox}>
-        <Text style={styles.dropdownValue}>{vehicleType}</Text>
-        <TouchableOpacity>
+      {/* Vehicle Type Box */}
+      <Text style={styles.dropdownLabel}>DropDown: Select Vehicle type</Text>
+      <View style={styles.vehicleBox}>
+        <View style={styles.vehicleLeft}>
+          <FontAwesome5
+            name="car-side"
+            size={20}
+            color="#EB5757"
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.vehicleText}>{vehicleType}</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.changeBtn}>Change</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Insurance Product Dropdown */}
-      <Text style={styles.dropdownLabel}>DropDown: Select Insurance product</Text>
+      {/* Insurance product label */}
+      <Text style={styles.dropdownLabel}>DropDown: Select insurance product</Text>
 
-      {/* Third Party Section */}
+      {/* Third Party Group */}
       <TouchableOpacity
+        style={styles.groupHeader}
         onPress={() => setThirdPartyOpen(!thirdPartyOpen)}
-        style={styles.sectionHeader}
       >
-        <Text style={styles.sectionTitle}>Third Party({thirdPartyOptions.length})</Text>
+        <Text style={styles.groupTitle}>
+          Third Party ({thirdPartyOptions.length})
+        </Text>
         <Ionicons
           name={thirdPartyOpen ? 'chevron-up' : 'chevron-down'}
           size={20}
+          color="#000"
         />
       </TouchableOpacity>
 
@@ -79,50 +183,72 @@ const VehicleInsuranceScreen2 = () => {
         thirdPartyOptions.map((option, index) => (
           <TouchableOpacity
             key={index}
-            style={styles.optionRow}
+            style={[styles.optionRow, { marginBottom: 12 }]}
             onPress={() => setSelectedProduct(option)}
           >
-            <View style={styles.radioCircle}>
-              {selectedProduct === option && <View style={styles.radioDot} />}
+            <View style={styles.radioOuter}>
+              {selectedProduct === option && (
+                <Ionicons name="checkmark" size={12} color="#fff" />
+              )}
             </View>
-            <Text style={styles.optionText}>{option}</Text>
+            <Text
+              style={[
+                styles.optionText,
+                selectedProduct === option && styles.optionTextSelected,
+              ]}
+            >
+              {option}
+            </Text>
           </TouchableOpacity>
         ))}
 
-      {/* Comprehensive Section */}
-      <TouchableOpacity
-        onPress={() => setComprehensiveOpen(!comprehensiveOpen)}
-        style={styles.sectionHeader}
-      >
-        <Text style={styles.sectionTitle}>Comprehensive({comprehensiveOptions.length})</Text>
-        <Ionicons
-          name={comprehensiveOpen ? 'chevron-up' : 'chevron-down'}
-          size={20}
-        />
-      </TouchableOpacity>
-
-      {comprehensiveOpen &&
-        comprehensiveOptions.map((option, index) => (
+      {/* Comprehensive Group (only if any) */}
+      {comprehensiveOptions.length > 0 && (
+        <>
           <TouchableOpacity
-            key={index}
-            style={styles.optionRow}
-            onPress={() => setSelectedProduct(option)}
+            style={styles.groupHeader}
+            onPress={() => setComprehensiveOpen(!comprehensiveOpen)}
           >
-            <View style={styles.radioCircle}>
-              {selectedProduct === option && <View style={styles.radioDot} />}
-            </View>
-            <Text style={styles.optionText}>{option}</Text>
+            <Text style={styles.groupTitle}>
+              Comprehensive ({comprehensiveOptions.length})
+            </Text>
+            <Ionicons
+              name={comprehensiveOpen ? 'chevron-up' : 'chevron-down'}
+              size={20}
+              color="#000"
+            />
           </TouchableOpacity>
-        ))}
+
+          {comprehensiveOpen &&
+            comprehensiveOptions.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.optionRow, { marginBottom: 12 }]}
+                onPress={() => setSelectedProduct(option)}
+              >
+                <View style={styles.radioOuter}>
+                  {selectedProduct === option && (
+                    <Ionicons name="checkmark" size={12} color="#fff" />
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.optionText,
+                    selectedProduct === option && styles.optionTextSelected,
+                  ]}
+                >
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            ))}
+        </>
+      )}
 
       {/* Next Button */}
       <TouchableOpacity
-        style={[
-          styles.nextButton,
-          !selectedProduct && { backgroundColor: '#ccc' },
-        ]}
-        disabled={!selectedProduct}
+        style={[styles.nextButton, !selectedProduct && { opacity: 0.5 }]}
         onPress={handleNext}
+        disabled={!selectedProduct}
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
@@ -132,104 +258,120 @@ const VehicleInsuranceScreen2 = () => {
 
 export default VehicleInsuranceScreen2;
 
+// Styles stay unchanged...
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     padding: 20,
+    paddingTop: 40,
     flexGrow: 1,
   },
-  stepIndicator: {
+  stepRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
     marginBottom: 20,
   },
-  stepLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
+  stepCircleActive: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#EB5757',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  stepNumbers: {
-    flexDirection: 'row',
-    gap: 8,
+  stepTextActive: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   stepCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#e5e5e5',
-    alignItems: 'center',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#E5E5E5',
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  stepNumber: {
+  stepText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#555',
   },
+  stepLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 4,
+  },
   dropdownLabel: {
-    marginTop: 10,
-    marginBottom: 5,
-    fontWeight: '600',
-    color: '#333',
-  },
-  dropdownBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#f4f4f4',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  dropdownValue: {
+    marginBottom: 8,
     fontWeight: '600',
     fontSize: 14,
+    color: '#000',
+  },
+  vehicleBox: {
+    backgroundColor: '#FFF0F0',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  vehicleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  vehicleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
   },
   changeBtn: {
-    fontWeight: '600',
     fontSize: 14,
-    color: '#007AFF',
+    fontWeight: '600',
+    color: '#000',
   },
-  sectionHeader: {
+  groupHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
     alignItems: 'center',
+    paddingVertical: 8,
   },
-  sectionTitle: {
+  groupTitle: {
     fontWeight: '600',
     fontSize: 14,
+    color: '#000',
   },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
   },
-  radioCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1,
-    borderColor: '#aaa',
-    alignItems: 'center',
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#EB5757',
+    backgroundColor: '#EB5757',
     justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
-  },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#333',
   },
   optionText: {
     fontSize: 14,
     color: '#000',
   },
+  optionTextSelected: {
+    fontWeight: 'bold',
+  },
   nextButton: {
-    marginTop: 30,
-    padding: 15,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#EB5757',
+    paddingVertical: 15,
     borderRadius: 10,
+    marginTop: 30,
     alignItems: 'center',
   },
   nextButtonText: {

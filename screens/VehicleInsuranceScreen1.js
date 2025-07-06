@@ -7,7 +7,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
@@ -17,17 +17,13 @@ const VehicleInsuranceScreen1 = () => {
   const [selected, setSelected] = useState(null);
 
   const vehicleTypes = [
-    { name: 'Private', icon: 'car-outline', screen: 'VehicleInsurance2' },
-    {
-      name: 'Commercial',
-      icon: 'truck-outline',
-      screen: 'CommercialInsurance1',
-      note: 'You can include any car under Commercial use.',
-    },
-    { name: 'PSV', icon: 'bus-outline', screen: 'VehicleInsurance2' },
-    { name: 'Special Classes', icon: 'construct-outline', screen: 'VehicleInsurance2' },
-    { name: 'Motorcycle', icon: 'bicycle-outline', screen: 'VehicleInsurance2' },
-    { name: 'TukTuk', icon: 'car-sport-outline', screen: 'VehicleInsurance2' },
+    { name: 'Private', icon: <FontAwesome5 name="car-side" size={30} color="#EB5757" />, screen: 'VehicleInsurance2' },
+    { name: 'Commercial', icon: <FontAwesome5 name="truck-moving" size={30} color="#EB5757" />, screen: 'VehicleInsurance2' },
+
+    { name: 'PSV', icon: <FontAwesome5 name="bus" size={30} color="#EB5757" />, screen: 'VehicleInsurance2' },
+    { name: 'Special Classes', icon: <MaterialCommunityIcons name="tow-truck" size={30} color="#EB5757" />, screen: 'VehicleInsurance2' },
+    { name: 'Motorcycle', icon: <FontAwesome5 name="motorcycle" size={30} color="#EB5757" />, screen: 'VehicleInsurance2' },
+    { name: 'TukTuk', icon: <MaterialCommunityIcons name="rickshaw" size={30} color="#EB5757" />, screen: 'VehicleInsurance2' },
   ];
 
   const handleNext = () => {
@@ -40,19 +36,25 @@ const VehicleInsuranceScreen1 = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Step Indicator */}
-      <View style={styles.stepIndicator}>
-        <Text style={styles.stepLabel}>● Vehicle Type</Text>
-        <View style={styles.stepNumbers}>
-          {[2, 3, 4, 5, 6].map((num, index) => (
-            <View key={index} style={styles.stepCircle}>
-              <Text style={styles.stepNumber}>{num}</Text>
-            </View>
-          ))}
-        </View>
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>Motor Vehicle insurance</Text>
       </View>
 
-      {/* Vehicle Grid */}
+      {/* Step Indicator */}
+      <View style={styles.stepRow}>
+        <View style={styles.stepCircleActive}>
+          <Text style={styles.stepTextActive}>1</Text>
+        </View>
+        {[2, 3, 4, 5, 6].map((num) => (
+          <View key={num} style={styles.stepCircle}>
+            <Text style={styles.stepText}>{num}</Text>
+          </View>
+        ))}
+        <Text style={styles.stepLabel}>Step Indicator</Text>
+      </View>
+
+      {/* Cards */}
       <View style={styles.grid}>
         {vehicleTypes.map((type, index) => (
           <TouchableOpacity
@@ -63,25 +65,20 @@ const VehicleInsuranceScreen1 = () => {
             ]}
             onPress={() => setSelected(type)}
           >
-            <Ionicons name={type.icon} size={32} color="#E30613" />
-            <Text style={styles.cardTitle}>{type.name}</Text>
-            {type.note && <Text style={styles.cardNote}>{type.note}</Text>}
+            {type.icon}
+            <Text style={styles.cardText}>{type.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Bottom Button */}
+      {/* Red Button */}
       <TouchableOpacity
-        style={[
-          styles.bottomButton,
-          !selected && styles.bottomButtonDisabled,
-        ]}
+        style={styles.bottomButton}
         onPress={handleNext}
         disabled={!selected}
       >
-        <Text style={styles.bottomButtonText}>
-          Check Vehicle For Existing Cover
-        </Text>
+        <FontAwesome5 name="car" size={18} color="#fff" style={{ marginRight: 10 }} />
+        <Text style={styles.bottomButtonText}>Check Vehicle For Existing Cover</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -90,26 +87,37 @@ const VehicleInsuranceScreen1 = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    paddingVertical: 20,
-    paddingTop: 40,
-    paddingHorizontal: 15,
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
     flexGrow: 1,
   },
-  stepIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+  headerRow: {
+    marginBottom: 10,
   },
-  stepLabel: {
-    fontSize: 16,
+  headerTitle: {
     fontWeight: 'bold',
+    fontSize: 18,
     color: '#000',
   },
-  stepNumbers: {
+  stepRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 25,
     gap: 8,
+  },
+  stepCircleActive: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#EB5757',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepTextActive: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   stepCircle: {
     width: 24,
@@ -119,10 +127,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  stepNumber: {
+  stepText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#555',
+    color: '#333',
+  },
+  stepLabel: {
+    marginLeft: 8,
+    fontSize: 12,
+    color: '#666',
   },
   grid: {
     flexDirection: 'row',
@@ -136,51 +148,36 @@ const styles = StyleSheet.create({
     width: (width - 60) / 2,
     aspectRatio: 1,
     borderRadius: 12,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    alignItems: 'center',
+    backgroundColor: '#FFF0F0',
     justifyContent: 'center',
-    backgroundColor: '#FDECEC',
-    borderWidth: 1,
-    borderColor: '#F5C6CB',
+    alignItems: 'center',
+    padding: 15,
   },
   cardSelected: {
-    borderColor: '#E30613',
     borderWidth: 2,
-    shadowColor: '#E30613',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    borderColor: '#EB5757',
+    backgroundColor: '#fff',
   },
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
+  cardText: {
     marginTop: 10,
-    textAlign: 'center',
-  },
-  cardNote: {
-    fontSize: 11,
-    color: '#555',
-    marginTop: 4,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
     textAlign: 'center',
   },
   bottomButton: {
-    backgroundColor: '#E30613',
+    backgroundColor: '#EB5757',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 16,
     borderRadius: 12,
     marginTop: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bottomButtonDisabled: {
-    backgroundColor: '#ccc',
   },
   bottomButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
     color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
 

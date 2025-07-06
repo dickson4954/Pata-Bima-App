@@ -12,6 +12,7 @@ import {
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import RNPickerSelect from 'react-native-picker-select';
 
 export default function SignupScreen({ navigation }) {
   const [formData, setFormData] = useState({
@@ -31,9 +32,11 @@ export default function SignupScreen({ navigation }) {
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.phone) newErrors.phone = 'Phone number is required';
     if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Confirm your password';
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
+    if (!formData.role) newErrors.role = 'Please select a role';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -41,7 +44,6 @@ export default function SignupScreen({ navigation }) {
   const handleSubmit = () => {
     if (validateForm()) {
       setIsLoading(true);
-      // Simulate API call
       setTimeout(() => {
         setIsLoading(false);
         navigation.navigate('Login');
@@ -54,7 +56,6 @@ export default function SignupScreen({ navigation }) {
       ...formData,
       [name]: value
     });
-    // Clear error when typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -138,9 +139,7 @@ export default function SignupScreen({ navigation }) {
                 onChangeText={(text) => handleChange('confirmPassword', text)}
                 secureTextEntry={!confirmPasswordVisible}
               />
-              <TouchableOpacity
-                onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-              >
+              <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
                 <Ionicons
                   name={confirmPasswordVisible ? 'eye' : 'eye-off'}
                   size={22}
@@ -153,15 +152,29 @@ export default function SignupScreen({ navigation }) {
             )}
           </View>
 
-          {/* Role Input */}
+          {/* Role Dropdown */}
           <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Your Role"
-              placeholderTextColor="#aaa"
+            <RNPickerSelect
+              onValueChange={(value) => handleChange('role', value)}
+              items={[
+                { label: 'Agent', value: 'Agent' },
+                { label: 'Customer', value: 'Customer' },
+              ]}
+              placeholder={{ label: 'Select Role', value: '' }}
+              style={{
+                inputIOS: [
+                  styles.input,
+                  errors.role && styles.inputError
+                ],
+                inputAndroid: [
+                  styles.input,
+                  errors.role && styles.inputError
+                ],
+              }}
               value={formData.role}
-              onChangeText={(text) => handleChange('role', text)}
+              useNativeAndroidPickerStyle={false}
             />
+            {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
           </View>
 
           {/* Sign Up Button */}
@@ -243,6 +256,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     fontSize: 16,
+    color: '#000',
+    backgroundColor: '#fff',
   },
   inputError: {
     borderColor: '#FF0000',
@@ -254,6 +269,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 12,
+    backgroundColor: '#fff',
   },
   passwordInput: {
     flex: 1,
@@ -302,3 +318,4 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
+ 
