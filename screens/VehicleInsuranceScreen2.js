@@ -125,8 +125,6 @@ const VehicleInsuranceScreen2 = () => {
     }
   );
 };
-
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Step Indicator */}

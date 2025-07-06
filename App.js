@@ -25,7 +25,7 @@ import VehicleInsuranceScreen11 from './screens/VehicleInsuranceScreen11';
 import VehicleComprehensiveScreen3 from './screens/VehicleComprehensiveScreen3';
 import VehicleComprehensiveScreen4 from './screens/VehicleComprehensiveScreen4';
 import VehicleComprehensiveScreen5 from './screens/VehicleComprehensiveScreen5';
-
+import VehicleComprehensiveScreen6 from './screens/VehicleComprehensiveScreen6';
 import ViewQuoteScreen from './screens/ViewQuoteScreen';
 
 
@@ -59,6 +59,8 @@ export default function App() {
         <Stack.Screen name="VehicleComprehensive3" component={VehicleComprehensiveScreen3} />
          <Stack.Screen name="VehicleComprehensive4" component={VehicleComprehensiveScreen4} />
          <Stack.Screen name="VehicleComprehensive5" component={VehicleComprehensiveScreen5} />
+          <Stack.Screen name="VehicleComprehensive6" component={VehicleComprehensiveScreen6} />
+
 
         <Stack.Screen name="ViewQuoteScreen" component={ViewQuoteScreen} />
 

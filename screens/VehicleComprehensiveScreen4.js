@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
   Modal,
@@ -14,6 +12,7 @@ import { useRoute } from '@react-navigation/native';
 
 const providers = [
   {
+    id: '1',
     name: 'Old Mutual',
     price: 'KES. 300,000',
     plan: 'Basic',
@@ -21,6 +20,7 @@ const providers = [
     status: 'Approval Process Manual',
   },
   {
+    id: '2',
     name: 'Cannon',
     price: 'KES. 300,000',
     plan: 'Basic',
@@ -28,6 +28,7 @@ const providers = [
     status: 'Approval Process Manual',
   },
   {
+    id: '3',
     name: 'Sanlam',
     price: 'KES. 300,000',
     plan: 'Basic',
@@ -35,6 +36,7 @@ const providers = [
     status: 'Approval Process Manual',
   },
   {
+    id: '4',
     name: 'AIG',
     price: 'KES. 300,000',
     plan: 'Basic',
@@ -42,6 +44,7 @@ const providers = [
     status: 'Approval Process Manual',
   },
   {
+    id: '5',
     name: 'Jubilee Allianz',
     price: 'KES. 300,000',
     plan: 'Basic',
@@ -51,14 +54,14 @@ const providers = [
 ];
 
 const optionalAddOns = [
-  { label: 'Loss of use 10 days', price: 'KES. 30,000' },
-  { label: 'Excess Protector', price: 'KES. 25,000' },
-  { label: 'Political Violence & Terrorism', price: 'KES. 25,000' },
+  { id: 'addon1', label: 'Loss of use 10 days', price: 'KES. 30,000' },
+  { id: 'addon2', label: 'Excess Protector', price: 'KES. 25,000' },
+  { id: 'addon3', label: 'Political Violence & Terrorism', price: 'KES. 25,000' },
 ];
 
 const additionalTopUps = [
-  { label: 'Windscreen', price: 'KES. 7,000' },
-  { label: 'Radio Cassette', price: 'Included' },
+  { id: 'topup1', label: 'Windscreen', price: 'KES. 7,000' },
+  { id: 'topup2', label: 'Radio Cassette', price: 'Included' },
 ];
 
 const VehicleInsuranceScreen4 = ({ navigation }) => {
@@ -108,87 +111,93 @@ const VehicleInsuranceScreen4 = ({ navigation }) => {
   const toggleAddOn = (item) => {
     setSelectedAddOns((prevState) => ({
       ...prevState,
-      [item.label]: !prevState[item.label],
+      [item.id]: !prevState[item.id],
     }));
   };
 
   const toggleTopUp = (item) => {
     setSelectedTopUps((prevState) => ({
       ...prevState,
-      [item.label]: !prevState[item.label],
+      [item.id]: !prevState[item.id],
     }));
   };
 
+  const renderProviderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.providerRow}
+      onPress={() => setSelectedProvider(item.name)}
+    >
+      <View style={styles.providerInfo}>
+        <Text style={styles.providerName}>{item.name}</Text>
+        <Text style={styles.providerPrice}>{item.price}</Text>
+        <Text style={styles.providerPlan}>{item.plan}</Text>
+        <Text style={styles.providerCoverage}>{item.coverage}</Text>
+        <Text style={styles.providerStatus}>{item.status}</Text>
+      </View>
+      <Ionicons
+        name={selectedProvider === item.name ? 'checkmark-circle' : 'radio-button-off'}
+        size={24}
+        color={selectedProvider === item.name ? '#EB5757' : '#000'}
+      />
+    </TouchableOpacity>
+  );
+
   return (
     <>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>{insuranceProduct}</Text>
-        </View>
+      <FlatList
+        contentContainerStyle={styles.container}
+        data={providers}
+        renderItem={renderProviderItem}
+        keyExtractor={(item) => item.id} // Ensure unique key for each provider
+        ListHeaderComponent={
+          <>
+            <View style={styles.headerRow}>
+              <Text style={styles.headerTitle}>{insuranceProduct}</Text>
+            </View>
 
-        <View style={styles.stepRow}>
-          <Text style={styles.stepLabel}>Select Provider</Text>
-          <View style={styles.stepIndicators}>
-            {[1, 2, 3, 4, 5, 6].map((step) => (
-              <View
-                key={step}
-                style={[styles.stepCircle, step === 4 && styles.activeStepCircle]}
-              >
-                <Text style={[styles.stepText, step === 4 && styles.activeStepText]}>
-                  {step}
-                </Text>
+            <View style={styles.stepRow}>
+              <Text style={styles.stepLabel}>Select Provider</Text>
+              <View style={styles.stepIndicators}>
+                {[1, 2, 3, 4, 5, 6].map((step) => (
+                  <View
+                    key={`step-${step}`} // Ensure unique key for each step
+                    style={[styles.stepCircle, step === 4 && styles.activeStepCircle]}
+                  >
+                    <Text style={[styles.stepText, step === 4 && styles.activeStepText]}>
+                      {step}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-        </View>
+            </View>
 
-        <Text style={styles.label}>Select a Provider</Text>
-
-        <FlatList
-          data={providers}
-          keyExtractor={(item) => item.name}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.providerRow}
-              onPress={() => setSelectedProvider(item.name)}
-            >
-              <View style={styles.providerInfo}>
-                <Text style={styles.providerName}>{item.name}</Text>
-                <Text style={styles.providerPrice}>{item.price}</Text>
-                <Text style={styles.providerPlan}>{item.plan}</Text>
-                <Text style={styles.providerCoverage}>{item.coverage}</Text>
-                <Text style={styles.providerStatus}>{item.status}</Text>
-              </View>
-              <Ionicons
-                name={selectedProvider === item.name ? 'checkmark-circle' : 'radio-button-off'}
-                size={24}
-                color={selectedProvider === item.name ? '#EB5757' : '#000'}
-              />
-            </TouchableOpacity>
-          )}
-        />
-
-        <TouchableOpacity
-          style={[styles.nextButton, !isFormComplete() && { opacity: 0.5 }]}
-          disabled={!isFormComplete()}
-          onPress={handleNext}
-        >
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
-      </ScrollView>
+            <Text style={styles.label}>Select a Provider</Text>
+          </>
+        }
+        ListFooterComponent={
+          <TouchableOpacity
+            style={[styles.nextButton, !isFormComplete() && { opacity: 0.5 }]}
+            disabled={!isFormComplete()}
+            onPress={handleNext}
+          >
+            <Text style={styles.nextButtonText}>Next</Text>
+          </TouchableOpacity>
+        }
+        showsVerticalScrollIndicator={false}
+      />
 
       <Modal visible={showConfirmModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Select Insurance Provider</Text>
-            <Text style={styles.modalSub}>KES. 275,000  Basic</Text>
+            <Text style={styles.modalSub}>KES. 275,000 Basic</Text>
             <Text style={styles.modalLabel}>Optional Add-ons</Text>
 
             {optionalAddOns.map((item) => (
-              <View key={item.label} style={styles.addOnRow}>
+              <View key={item.id} style={styles.addOnRow}>
                 <TouchableOpacity onPress={() => toggleAddOn(item)}>
-                  <Text>{selectedAddOns[item.label] ? '☑' : '☐'} {item.label}</Text>
+                  <Text>{selectedAddOns[item.id] ? '☑' : '☐'} {item.label}</Text>
                 </TouchableOpacity>
                 <Text>{item.price}</Text>
               </View>
@@ -200,22 +209,25 @@ const VehicleInsuranceScreen4 = ({ navigation }) => {
             </Text>
 
             {additionalTopUps.map((item) => (
-              <View key={item.label} style={styles.addOnRow}>
+              <View key={item.id} style={styles.addOnRow}>
                 <TouchableOpacity onPress={() => toggleTopUp(item)}>
-                  <Text>{selectedTopUps[item.label] ? '☑' : '☐'} {item.label}</Text>
+                  <Text>{selectedTopUps[item.id] ? '☑' : '☐'} {item.label}</Text>
                 </TouchableOpacity>
                 <Text>{item.price}</Text>
               </View>
             ))}
 
             <Text style={[styles.modalTotal]}>
-              Sub–Total: <Text style={{ color: '#EB5757' }}>KES 275,000</Text>
+              Sub-Total: <Text style={{ color: '#EB5757' }}>KES 275,000</Text>
             </Text>
             <Text style={{ fontSize: 12, color: '#666', marginBottom: 20 }}>
-              Exclusive of Levies  Basic
+              Exclusive of Levies Basic
             </Text>
 
-            <TouchableOpacity style={[styles.nextButton]} onPress={handleConfirmSelection}>
+            <TouchableOpacity 
+              style={styles.nextButton}
+              onPress={handleConfirmSelection}
+            >
               <Text style={styles.nextButtonText}>Select</Text>
             </TouchableOpacity>
           </View>

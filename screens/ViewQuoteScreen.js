@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image,
+  SafeAreaView 
+} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,7 +15,7 @@ const ViewQuoteScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
-  // Use fallback/default values if params are not passed properly
+  // Safely destructure with defaults
   const {
     vehicleReg = 'N/A',
     year = 'N/A',
@@ -16,6 +24,7 @@ const ViewQuoteScreen = () => {
     insuranceProduct = 'N/A',
   } = route.params || {};
 
+  // Format date and time
   const currentDateTime = new Date();
   const formattedDate = currentDateTime.toLocaleDateString('en-GB', {
     weekday: 'long',
@@ -23,104 +32,158 @@ const ViewQuoteScreen = () => {
     month: 'long',
     day: 'numeric',
   });
-  const formattedTime = currentDateTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const formattedTime = currentDateTime.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
   const quotationId = Math.floor(100000 + Math.random() * 900000);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-      <View style={styles.topRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="close" size={28} color="#EB5757" /> {/* Close button in red */}
-        </TouchableOpacity>
-        <Text style={styles.title}>Quote for Reg No: {vehicleReg}</Text>
-        <View style={{ width: 28 }} />
-      </View>
-
-      <View style={styles.logoRow}>
-        {/* Logo and name on the left */}
-        <View style={styles.logoContainer}>
-          <Image source={require('../assets/logo.png.jpg')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.patabimaName}>Patabima</Text> {/* Name below logo in bold red */}
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Ionicons name="close" size={28} color="#EB5757" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Quote for {vehicleReg}</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
-        {/* Contact info on the right */}
-        <View style={styles.contactRight}>
-          <Text style={styles.infoText}>Phone: +254 706 451 781</Text>
-          <Text style={styles.infoText}>Email: info@patabima.co.ke</Text>
-          <Text style={styles.infoText}>Website: https://patabima.co.ke</Text>
+        {/* Logo and Contact Info */}
+        <View style={styles.logoSection}>
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../assets/logo.png.jpg')} 
+              style={styles.logo} 
+              resizeMode="contain" 
+            />
+            <Text style={styles.companyName}>Patabima</Text>
+          </View>
+          
+          <View style={styles.contactInfo}>
+            <Text style={styles.contactText}>Phone: +254 706 451 781</Text>
+            <Text style={styles.contactText}>Email: info@patabima.co.ke</Text>
+            <Text style={styles.contactText}>Website: patabima.co.ke</Text>
+          </View>
         </View>
-      </View>
 
-      <Text style={styles.centerHeading}>Insurance Quotation for {selectedProvider}</Text>
+        {/* Main Content */}
+        <Text style={styles.mainHeading}>
+          Insurance Quotation for {selectedProvider}
+        </Text>
 
-      <View style={styles.sectionBox}>
-        <Text style={styles.subHeader}>Basic Information</Text>
-        <Text style={styles.item}>Car Registration: {vehicleReg}</Text>
-        <Text style={styles.item}>Year of Manufacture: {year}</Text>
-        <Text style={styles.item}>Valuation: KES {valuation}</Text>
-        <Text style={styles.item}>Provider: {selectedProvider}</Text>
-        <Text style={styles.item}>Policy: Private Comprehensive</Text>
-        <Text style={styles.item}>Date: {formattedDate}, {formattedTime}</Text>
-        <Text style={styles.item}>Quotation ID: {quotationId}</Text>
-      </View>
-
-      <View style={styles.sectionBox}>
-        <Text style={styles.subHeader}>Estimated Amount</Text>
-        <Text style={styles.item}>Basic Premium Amount: KES 252,200.00</Text>
-        <Text style={styles.item}>Additional Premium Options: KES 0.00</Text>
-        <Text style={styles.item}>Training Levy: KES 504.40</Text>
-        <Text style={styles.item}>Policy Holder Compensation Fund: KES 630.50</Text>
-        <Text style={styles.item}>Stamp Duty: KES 40.00</Text>
-        <Text style={styles.itemBold}>Total Premium Amount: KES 253,375.00 (gross)</Text>
-      </View>
-
-      <View style={styles.sectionBox}>
-        <Text style={styles.subHeader}>Options</Text>
-        <View style={styles.optionRow}>
-          <Text style={styles.item}>Option</Text>
-          <Text style={styles.item}>Value</Text>
-          <Text style={styles.item}>Limit of Liability</Text>
+        {/* Information Sections */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Basic Information</Text>
+          <InfoRow label="Car Registration" value={vehicleReg} />
+          <InfoRow label="Year of Manufacture" value={year} />
+          <InfoRow label="Valuation" value={`KES ${valuation}`} />
+          <InfoRow label="Provider" value={selectedProvider} />
+          <InfoRow label="Policy" value="Private Comprehensive" />
+          <InfoRow label="Date" value={`${formattedDate}, ${formattedTime}`} />
+          <InfoRow label="Quotation ID" value={quotationId} />
         </View>
-        <View style={styles.optionRow}>
-          <Text style={styles.item}>Windscreen</Text>
-          <Text style={styles.item}>KES 0.00</Text>
-          <Text style={styles.item}>Inclusive</Text>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Estimated Amount</Text>
+          <InfoRow label="Basic Premium Amount" value="KES 252,200.00" />
+          <InfoRow label="Additional Premium Options" value="KES 0.00" />
+          <InfoRow label="Training Levy" value="KES 504.40" />
+          <InfoRow label="Policy Holder Compensation Fund" value="KES 630.50" />
+          <InfoRow label="Stamp Duty" value="KES 40.00" />
+          <InfoRow 
+            label="Total Premium Amount" 
+            value="KES 253,375.00 (gross)" 
+            bold 
+          />
         </View>
-      </View>
 
-      <View style={styles.sectionBox}>
-        <Text style={styles.subHeader}>Payment Details</Text>
-        <Text style={styles.item}>Please pay to the Below MPESA Paybill:</Text>
-        <Text style={styles.item}>- Paybill No: 4114079</Text>
-        <Text style={styles.item}>- Account No: Car Registration</Text>
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Options</Text>
+          <View style={styles.tableHeader}>
+            <Text style={styles.tableHeaderText}>Option</Text>
+            <Text style={styles.tableHeaderText}>Value</Text>
+            <Text style={styles.tableHeaderText}>Limit of Liability</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Windscreen</Text>
+            <Text style={styles.tableCell}>KES 0.00</Text>
+            <Text style={styles.tableCell}>Inclusive</Text>
+          </View>
+        </View>
 
-      <Text style={styles.amountFooter}>Amount: <Text style={{ fontWeight: 'bold' }}>KES 253,375.00</Text></Text>
-    </ScrollView>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Payment Details</Text>
+          <Text style={styles.paymentText}>
+            Please pay to the Below MPESA Paybill:
+          </Text>
+          <Text style={styles.paymentDetail}>- Paybill No: 4114079</Text>
+          <Text style={styles.paymentDetail}>- Account No: {vehicleReg}</Text>
+        </View>
+
+        <View style={styles.totalAmount}>
+          <Text style={styles.totalText}>
+            Amount: <Text style={styles.boldText}>KES 253,375.00</Text>
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
+// Reusable component for info rows
+const InfoRow = ({ label, value, bold = false }) => (
+  <View style={styles.infoRow}>
+    <Text style={styles.infoLabel}>{label}:</Text>
+    <Text style={[styles.infoValue, bold && styles.boldText]}>
+      {value}
+    </Text>
+  </View>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    padding: 20,
+  safeArea: {
     flex: 1,
+    backgroundColor: '#fff',
   },
-  topRow: {
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  backButton: {
+    padding: 5,
   },
   title: {
-    fontSize: 16,
-    color: '#EB5757', // Red title
+    fontSize: 18,
     fontWeight: 'bold',
+    color: '#EB5757',
+    textAlign: 'center',
+    flex: 1,
   },
-  logoRow: {
+  headerSpacer: {
+    width: 28,
+  },
+  logoSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -129,62 +192,97 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 40,
-    marginLeft: 10,
   },
-  patabimaName: {
+  companyName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#EB5757', // Red color for Patabima name
+    color: '#EB5757',
     marginLeft: 10,
   },
-  contactRight: {
+  contactInfo: {
     alignItems: 'flex-end',
   },
-  infoText: {
+  contactText: {
     fontSize: 12,
     color: '#333',
   },
-  centerHeading: {
-    fontSize: 16,
+  mainHeading: {
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 20,
     color: '#000',
     textDecorationLine: 'underline',
-    marginBottom: 10,
   },
-  sectionBox: {
-    backgroundColor: '#F0F0F0',
+  section: {
+    backgroundColor: '#F5F5F5',
     borderRadius: 8,
-    padding: 12,
+    padding: 15,
     marginBottom: 20,
   },
-  subHeader: {
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#EB5757',
+    marginBottom: 10,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 8,
-    color: '#EB5757', // Red color
   },
-  item: {
+  infoLabel: {
     fontSize: 14,
-    color: '#000',
-    marginBottom: 4,
+    color: '#333',
+    fontWeight: '500',
   },
-  itemBold: {
+  infoValue: {
     fontSize: 14,
-    color: '#000',
-    marginTop: 6,
+    color: '#555',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 5,
+  },
+  tableHeaderText: {
     fontWeight: 'bold',
+    fontSize: 14,
+    color: '#333',
   },
-  optionRow: {
+  tableRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 5,
   },
-  amountFooter: {
+  tableCell: {
+    fontSize: 14,
+    color: '#555',
+  },
+  paymentText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 5,
+  },
+  paymentDetail: {
+    fontSize: 14,
+    color: '#555',
+    marginLeft: 10,
+    marginBottom: 3,
+  },
+  totalAmount: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  totalText: {
     fontSize: 16,
     color: '#000',
+  },
+  boldText: {
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 10,
   },
 });
 
