@@ -39,6 +39,9 @@ const HomeScreen = () => {
     if (product === 'Vehicle Insurance') {
       navigation.navigate('VehicleInsurance1');
     }
+     if (product === 'Medical Insurance') {
+      navigation.navigate('MedicalInsurance1');
+    }
   };
 
   const renderExtensions = () => (

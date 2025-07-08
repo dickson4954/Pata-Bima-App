@@ -60,7 +60,7 @@ const ViewQuoteScreen = () => {
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
             <Image 
-              source={require('../assets/logo.png.jpg')} 
+              source={require('../../assets/logo.png.jpg')} 
               style={styles.logo} 
               resizeMode="contain" 
             />

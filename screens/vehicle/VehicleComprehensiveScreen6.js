@@ -56,28 +56,50 @@ const VehicleComprehensive5 = () => {
     }
   };
 
-  const handleNext = () => {
-    // Update modal data with current values
-    setModalData({
-      ...modalData,
-      vehicleRegNumber: vehicleReg,
-      issuedBy: selectedProvider
-    });
-    setShowModal(true);
-  };
+  
+const isFormValid =
+  policyHolderType &&
+  valuer &&
+  ((policyHolderType === 'Individual' && idNumber) ||
+    (policyHolderType === 'Corporate' && companyName && companyReg));
 
-  const isFormValid =
-    policyHolderType &&
-    valuer &&
-    ((policyHolderType === 'Individual' && idNumber) ||
-      (policyHolderType === 'Corporate' && companyName && companyReg));
 
   const handleAdjustDate = () => {
     setShowModal(false);
     setShowPicker(true);
   };
+const handleNext = () => {
+  if (policyHolderType === 'Corporate') {
+    navigation.navigate('CorporateDetailsScreen', {
+      insuranceProduct,
+      vehicleReg,
+      valuation,
+      year,
+      make,
+      model,
+      windscreen,
+      radio,
+      selectedProvider,
+      selectedAddOns,
+      selectedTopUps,
+      policyHolderType,
+      companyName,
+      companyReg,
+      valuer,
+      startDate: startDate.toISOString(),
+    });
+  } else {
+    // Individual → show modal
+    setModalData({
+      ...modalData,
+      vehicleRegNumber: vehicleReg,
+      issuedBy: selectedProvider,
+    });
+    setShowModal(true);
+  }
+};
 
- const handleSubmitDebitNote = () => {
+const handleSubmitDebitNote = () => {
   setShowModal(false);
   navigation.navigate('VehicleComprehensive7', {
     insuranceProduct,
@@ -93,10 +115,8 @@ const VehicleComprehensive5 = () => {
     selectedTopUps,
     policyHolderType,
     idNumber,
-    companyName,
-    companyReg,
     valuer,
-    startDate: startDate.toISOString() // Convert to ISO string
+    startDate: startDate.toISOString(), // Convert to ISO string
   });
 };
 

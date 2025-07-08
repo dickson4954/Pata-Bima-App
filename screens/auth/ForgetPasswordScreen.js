@@ -17,7 +17,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/logo.png.jpg')} style={styles.logo} />
+      <Image source={require('../../assets/logo.png.jpg')} style={styles.logo} />
 
       <TextInput
         style={styles.input}

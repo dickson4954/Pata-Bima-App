@@ -30,7 +30,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/logo.png.jpg')} style={styles.logo} />
+      <Image source={require('../../assets/logo.png.jpg')} style={styles.logo} />
       <Text style={styles.signupTitle}><Text style={styles.bold}>Let's sign You In</Text></Text>
       <Text style={styles.welcome}>Welcome back, you’ve been missed</Text>
 

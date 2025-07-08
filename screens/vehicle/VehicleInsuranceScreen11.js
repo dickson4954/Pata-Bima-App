@@ -54,7 +54,7 @@ const VehicleInsuranceScreen10 = () => {
       {/* Confirmation Section */}
       <View style={styles.centerSection}>
         <Image
-          source={require('../assets/green check icon.png')}
+          source={require('../../assets/green check icon.png')}
           style={styles.checkIcon}
         />
         <Text style={styles.confirmedText}>Payment Confirmed!</Text>

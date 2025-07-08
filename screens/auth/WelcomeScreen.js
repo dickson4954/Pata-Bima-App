@@ -5,7 +5,7 @@ export default function WelcomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../assets/logo.png.jpg')}
+        source={require('../../assets/logo.png.jpg')}
         style={styles.logo}
       />
       <TouchableOpacity

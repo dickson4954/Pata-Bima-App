@@ -171,7 +171,7 @@ const VehicleInsuranceScreen4 = ({ navigation }) => {
               </View>
             </View>
 
-            <Text style={styles.label}>Select a Provider</Text>
+           
           </>
         }
         ListFooterComponent={

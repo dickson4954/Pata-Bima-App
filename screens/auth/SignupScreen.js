@@ -72,7 +72,7 @@ export default function SignupScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
           <Image 
-            source={require('../assets/logo.png.jpg')} 
+            source={require('../../assets/logo.png.jpg')} 
             style={styles.logo} 
             resizeMode="contain"
           />

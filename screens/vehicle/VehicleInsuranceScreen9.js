@@ -122,7 +122,7 @@ const VehicleInsuranceScreen9 = () => {
       <Text style={styles.sectionTitle}>Payment Method</Text>
       <View style={styles.paymentMethodBox}>
         <Image
-          source={require('../assets/mpesa.jpeg')}
+          source={require('../../assets/mpesa.jpeg')}
           style={styles.mpesaLogo}
         />
         <Text style={styles.paymentLabel}>Mpesa</Text>

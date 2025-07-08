@@ -62,7 +62,7 @@ const VehicleInsuranceScreen10 = () => {
       <Text style={styles.subTitle}>Payment Method</Text>
       <View style={styles.paymentMethodBox}>
         <Image
-          source={require('../assets/mpesa.jpeg')}
+          source={require('../../assets/mpesa.jpeg')}
           style={styles.mpesaLogo}
         />
 
@@ -76,7 +76,7 @@ const VehicleInsuranceScreen10 = () => {
       <Text style={styles.subTitle}>Payment Summary</Text>
       <View style={styles.transactionCard}>
         <Image
-          source={require('../assets/alert bell icon.png')} // You can update this with your bell icon
+          source={require('../../assets/alert bell icon.png')} // You can update this with your bell icon
           style={styles.bellIcon}
         />
         <Text style={styles.transactionTitle}>Transaction Pending</Text>
