@@ -11,8 +11,27 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const VehicleComprehensive5 = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  // Get all parameters from navigation
+  const {
+    insuranceProduct = 'Private Comprehensive', // Default value if not provided
+    vehicleReg = 'N/A',
+    valuation = '0',
+    year = 'N/A',
+    make = 'N/A',
+    model = 'N/A',
+    windscreen = 'N/A',
+    radio = 'N/A',
+    selectedProvider = 'N/A',
+    selectedAddOns = {},
+    selectedTopUps = {},
+  } = route.params || {};
+
   const [policyHolderType, setPolicyHolderType] = useState('');
   const [idNumber, setIdNumber] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -22,6 +41,14 @@ const VehicleComprehensive5 = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  // Dynamic data for the modal - now using the actual vehicle registration from params
+  const [modalData, setModalData] = useState({
+    vehicleRegNumber: vehicleReg,
+    activeCertNumber: 'C31029144', // This would ideally come from an API
+    issuedBy: selectedProvider,
+    expiryDate: '31/01/2026', // This would ideally be calculated
+  });
+
   const handleDateChange = (event, selectedDate) => {
     setShowPicker(false);
     if (selectedDate) {
@@ -30,6 +57,12 @@ const VehicleComprehensive5 = () => {
   };
 
   const handleNext = () => {
+    // Update modal data with current values
+    setModalData({
+      ...modalData,
+      vehicleRegNumber: vehicleReg,
+      issuedBy: selectedProvider
+    });
     setShowModal(true);
   };
 
@@ -39,12 +72,42 @@ const VehicleComprehensive5 = () => {
     ((policyHolderType === 'Individual' && idNumber) ||
       (policyHolderType === 'Corporate' && companyName && companyReg));
 
+  const handleAdjustDate = () => {
+    setShowModal(false);
+    setShowPicker(true);
+  };
+
+ const handleSubmitDebitNote = () => {
+  setShowModal(false);
+  navigation.navigate('VehicleComprehensive7', {
+    insuranceProduct,
+    vehicleReg,
+    valuation,
+    year,
+    make,
+    model,
+    windscreen,
+    radio,
+    selectedProvider,
+    selectedAddOns,
+    selectedTopUps,
+    policyHolderType,
+    idNumber,
+    companyName,
+    companyReg,
+    valuer,
+    startDate: startDate.toISOString() // Convert to ISO string
+  });
+};
+
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header - Now using the insuranceProduct from params */}
       <View style={styles.headerRow}>
-        <Ionicons name="arrow-back" size={24} color="black" />
-        <Text style={styles.headerTitle}>Private Comprehensive</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{insuranceProduct}</Text>
       </View>
 
       {/* Step Progress */}
@@ -188,45 +251,39 @@ const VehicleComprehensive5 = () => {
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Vehicle Registration Number</Text>
-              <Text style={styles.detailValue}>KDN432A</Text>
+              <Text style={styles.detailValue}>{modalData.vehicleRegNumber}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Active Certificate Number</Text>
-              <Text style={styles.detailValue}>C31029144</Text>
+              <Text style={styles.detailValue}>{modalData.activeCertNumber}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Issued By</Text>
-              <Text style={styles.detailValue}>GA Insurance limited</Text>
+              <Text style={styles.detailValue}>{modalData.issuedBy}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Expiry Date</Text>
-              <Text style={styles.detailValue}>31/01/2026</Text>
+              <Text style={styles.detailValue}>{modalData.expiryDate}</Text>
             </View>
 
             <TouchableOpacity
               style={[styles.modalButton, { backgroundColor: '#E30613' }]}
-              onPress={() => {
-                setShowModal(false);
-                // Optionally update date
-              }}
+              onPress={handleAdjustDate}
             >
               <Text style={styles.modalButtonText}>Adjust Start Date</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.modalButtonOutline]}
-              onPress={() => {
-                setShowModal(false);
-                // Proceed with debit note submission
-              }}
-            >
-              <Text style={[styles.modalButtonText, { color: '#00A651' }]}>
-                Submit Debit Note
-              </Text>
-            </TouchableOpacity>
+           <TouchableOpacity
+  style={[styles.modalButtonOutline]}
+  onPress={handleSubmitDebitNote}
+>
+  <Text style={[styles.modalButtonText, { color: '#E30613' }]}>
+    Submit Debit Note
+  </Text>
+</TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -234,7 +291,9 @@ const VehicleComprehensive5 = () => {
   );
 };
 
+
 export default VehicleComprehensive5;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -371,7 +430,7 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     fontWeight: 'bold',
-    color: '#fff]',
+    color: '#fff',
   },
 });
 

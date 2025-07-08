@@ -51,10 +51,18 @@ const QuotationScreen = ({ route }) => {
       : quotations.filter((q) => q.applied === (selectedFilter === 'Applied'));
 
   const handleApplyPolicy = (reg) => {
-    const updated = quotations.map((q) =>
-      q.reg === reg ? { ...q, applied: true } : q
-    );
-    setQuotations(updated);
+    const quoteToApply = quotations.find((q) => q.reg === reg);
+    if (quoteToApply) {
+      navigation.navigate('VehicleComprehensive6', {
+        vehicleReg: quoteToApply.reg,
+        year: quoteToApply.year,
+        valuation: quoteToApply.valuation,
+        selectedProvider: quoteToApply.provider,
+        insuranceProduct: quoteToApply.insuranceProduct,
+        selectedAddOns: {}, // Add any selected add-ons if applicable
+        selectedTopUps: {}, // Add any selected top-ups if applicable
+      });
+    }
   };
 
   const toggleCard = (reg) => {
