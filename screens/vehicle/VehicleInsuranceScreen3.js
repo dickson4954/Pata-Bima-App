@@ -21,6 +21,11 @@ const VehicleInsuranceScreen3 = () => {
   const [financialInterest, setFinancialInterest] = useState('Yes');
   const [identificationMethod, setIdentificationMethod] = useState('Vehicle Registration');
   const [registrationNumber, setRegistrationNumber] = useState('');
+  const [chassisNumber, setChassisNumber] = useState('');
+  const [engineNumber, setEngineNumber] = useState('');
+  const [registrationError, setRegistrationError] = useState('');
+  const [chassisError, setChassisError] = useState('');
+  const [engineError, setEngineError] = useState('');
   const [coverStartDate, setCoverStartDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -37,6 +42,8 @@ const VehicleInsuranceScreen3 = () => {
     setTonnage('');
     setPassengers('');
     setRegistrationNumber('');
+    setChassisNumber('');
+    setEngineNumber('');
     setSelectedProvider(null);
     setIdentificationMethod('Vehicle Registration'); // Reset to default to avoid state mismatch
   }, [vehicleType]);
@@ -47,7 +54,30 @@ const VehicleInsuranceScreen3 = () => {
   ];
 
   const handleNext = () => {
-    if (selectedProvider && registrationNumber) {
+    // Reset error messages
+    setRegistrationError('');
+    setChassisError('');
+    setEngineError('');
+
+    let valid = true;
+
+    if (identificationMethod === 'Vehicle Registration') {
+      if (!registrationNumber.trim()) {
+        setRegistrationError('Vehicle registration number is required.');
+        valid = false;
+      }
+    } else if (identificationMethod === 'Chassis Number') {
+      if (!chassisNumber.trim()) {
+        setChassisError('Chassis number is required.');
+        valid = false;
+      }
+      if (!engineNumber.trim()) {
+        setEngineError('Engine number is required.');
+        valid = false;
+      }
+    }
+
+    if (valid) {
       setShowExistingCoverCard(true);
     }
   };
@@ -57,7 +87,9 @@ const VehicleInsuranceScreen3 = () => {
     navigation.navigate('VehicleInsurance5', {
       vehicleType,
       insuranceProduct,
-      registrationNumber,
+      registrationNumber: identificationMethod === 'Vehicle Registration' ? registrationNumber : '',
+      chassisNumber: identificationMethod === 'Chassis Number' ? chassisNumber : '',
+      engineNumber: identificationMethod === 'Chassis Number' ? engineNumber : '',
       coverStartDate: coverStartDate.toISOString(),
       provider: selectedProvider,
       ...(requiresTonnage && { tonnage }),
@@ -95,32 +127,65 @@ const VehicleInsuranceScreen3 = () => {
       </View>
 
       <Text style={styles.subLabel}>Select Vehicle identification</Text>
-      <View style={{ backgroundColor: 'transparent' }}>
+      <View style={styles.rowOptions}>
         {['Vehicle Registration', 'Chassis Number'].map((option) => (
           <TouchableOpacity
             key={option}
-            style={[styles.identificationOption, identificationMethod === option && styles.selectedIdentificationOption]}
-            onPress={() => {
-              console.log('Selected identification:', option);
-              setIdentificationMethod(option);
-            }}
+            style={styles.radioItem}
+            onPress={() => setIdentificationMethod(option)}
+            activeOpacity={0.7}
           >
-            <Text style={styles.identificationText}>{option}</Text>
-            {identificationMethod === option && <Ionicons name="checkmark-circle" size={20} color="#EB5757" />}
+            <View style={styles.radioCircle}>
+              {identificationMethod === option && <View style={styles.radioInnerCircle} />}
+            </View>
+            <Text style={styles.radioText}>{option}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <Text style={styles.subLabel}>Vehicle registration Number</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="KDN 423A"
-        value={registrationNumber}
-        onChangeText={setRegistrationNumber}
-        autoComplete="off"
-        autoCorrect={false}
-        importantForAutofill="no"
-      />
+      {identificationMethod === 'Vehicle Registration' && (
+        <>
+          <Text style={styles.subLabel}>Vehicle registration Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="KDN 423A"
+            value={registrationNumber}
+            onChangeText={setRegistrationNumber}
+            autoComplete="off"
+            autoCorrect={false}
+            importantForAutofill="no"
+          />
+          {registrationError ? <Text style={styles.errorText}>{registrationError}</Text> : null}
+        </>
+      )}
+
+      {identificationMethod === 'Chassis Number' && (
+        <>
+          <Text style={styles.subLabel}>Chassis Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter chassis number"
+            value={chassisNumber}
+            onChangeText={setChassisNumber}
+            autoComplete="off"
+            autoCorrect={false}
+            importantForAutofill="no"
+          />
+          {chassisError ? <Text style={styles.errorText}>{chassisError}</Text> : null}
+
+          <Text style={styles.subLabel}>Engine Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter engine number"
+            value={engineNumber}
+            onChangeText={setEngineNumber}
+            autoComplete="off"
+            autoCorrect={false}
+            importantForAutofill="no"
+          />
+          {engineError ? <Text style={styles.errorText}>{engineError}</Text> : null}
+        </>
+      )}
 
       {/* Tonnage field */}
       {requiresTonnage && (
@@ -201,8 +266,8 @@ const VehicleInsuranceScreen3 = () => {
       )}
 
       <TouchableOpacity
-        style={[styles.nextButton, !(selectedProvider && registrationNumber) && { backgroundColor: '#ccc' }]}
-        disabled={!(selectedProvider && registrationNumber)}
+        style={[styles.nextButton, !(selectedProvider && (registrationNumber || (identificationMethod === 'Chassis Number' && chassisNumber && engineNumber))) && { backgroundColor: '#ccc' }]}
+        disabled={!(selectedProvider && (registrationNumber || (identificationMethod === 'Chassis Number' && chassisNumber && engineNumber)))}
         onPress={handleNext}
       >
         <Text style={styles.nextButtonText}>Next</Text>
@@ -345,25 +410,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000',
   },
-  identificationOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  selectedIdentificationOption: {
-    borderColor: '#EB5757',
-    backgroundColor: '#FFE5E5', // Light red background for selected state
-  },
-  identificationText: {
-    fontSize: 14,
-    color: '#000',
-  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -454,6 +500,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
   },
+  
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -488,5 +535,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 12,
   },
 });

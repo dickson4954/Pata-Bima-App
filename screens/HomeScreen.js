@@ -42,6 +42,21 @@ const HomeScreen = () => {
      if (product === 'Medical Insurance') {
       navigation.navigate('MedicalInsurance1');
     }
+    if (product === 'WIBA Insurance') {
+      navigation.navigate('WibaInsurance1');
+    }
+    if (product === 'Last Expense') {
+      navigation.navigate('LastExpenseInsurance1');
+    }
+    if (product === 'Travel Insurance') {
+      navigation.navigate('TravelInsurance1');
+    }
+    if (product === 'Professional Indemnity') {
+      navigation.navigate('ProfessionalIndemnity1');
+    }
+    if (product === 'Domestic Package') {
+      navigation.navigate('DomesticPackage1');
+    }
   };
 
   const renderExtensions = () => (

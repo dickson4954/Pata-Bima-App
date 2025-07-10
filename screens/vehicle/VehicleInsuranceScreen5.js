@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+// import { fetchPricing } from './pricingService'; // Import the pricing service
 
 const VehicleInsuranceScreen5 = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  // ✅ Extract all required params from route
   const {
     insuranceProduct,
     registrationNumber,
@@ -29,6 +30,9 @@ const VehicleInsuranceScreen5 = () => {
     debitNote: null,
     certificate: null,
   });
+
+  const [pricingInfo, setPricingInfo] = useState(null);
+  const [loadingPricing, setLoadingPricing] = useState(false);
 
   const handleFileSelect = async (field) => {
     try {
@@ -46,14 +50,62 @@ const VehicleInsuranceScreen5 = () => {
     }
   };
 
+  const handleFileDelete = (field) => {
+    setDocuments((prev) => ({ ...prev, [field]: null }));
+  };
+
+  const handleFetchPricing = async () => {
+    setLoadingPricing(true);
+    try {
+      const vehicleDetails = {
+        registrationNumber,
+        // Add other vehicle details as needed
+      };
+      const pricing = await fetchPricing(provider.id, vehicleDetails);
+      setPricingInfo(pricing);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch pricing information.');
+    } finally {
+      setLoadingPricing(false);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchPricing(); // Fetch pricing when the component mounts
+  }, [provider]); // Re-fetch when the provider changes
+
+  const handleNext = () => {
+    // Check if all required documents are attached
+    const requiredDocuments = [
+      'nationalId',
+      'kraPin',
+      'logbook',
+      'debitNote',
+      'certificate',
+    ];
+
+    const missingDocuments = requiredDocuments.filter(doc => !documents[doc]);
+
+    if (missingDocuments.length > 0) {
+      Alert.alert('Missing Documents', `Please attach the following documents: ${missingDocuments.join(', ')}`);
+    } else {
+      // Navigate to the next screen if all documents are attached
+      navigation.navigate('VehicleInsurance6', {
+        insuranceProduct,
+        registrationNumber,
+        provider,
+        coverStartDate,
+        documents, // Pass documents to the next screen
+      });
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>{insuranceProduct}</Text>
       </View>
 
-      {/* Step Indicator */}
       <View style={styles.stepIndicator}>
         <Text style={styles.stepLabel}>● KYC Documents</Text>
         <View style={styles.stepNumbers}>
@@ -78,11 +130,9 @@ const VehicleInsuranceScreen5 = () => {
         </View>
       </View>
 
-      {/* Section Title */}
       <Text style={styles.title}>Debit Note Documents</Text>
       <Text style={styles.uploadText}>Please upload the required debit note documents below.</Text>
 
-      {/* Upload Fields */}
       {[
         { label: "National ID", key: "nationalId" },
         { label: "KRA PIN", key: "kraPin" },
@@ -95,28 +145,41 @@ const VehicleInsuranceScreen5 = () => {
             <Ionicons name="cloud-upload-outline" size={24} color="#EB5757" />
             <Text style={styles.checklistText}>{label}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.attachButton}
-            onPress={() => handleFileSelect(key)}
-          >
-            <Text style={styles.attachText}>
-              {documents[key] ? "Attached" : "Attach document"}
-            </Text>
-          </TouchableOpacity>
+          {documents[key] ? (
+            <View style={styles.documentActions}>
+              <TouchableOpacity
+                style={styles.attachButton}
+                onPress={() => handleFileDelete(key)}
+              >
+                <Text style={styles.attachText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.attachButton}
+              onPress={() => handleFileSelect(key)}
+            >
+              <Text style={styles.attachText}>Attach document</Text>
+            </TouchableOpacity>
+          )}
         </View>
       ))}
 
-      {/* ✅ Updated Next Button with full param passing */}
+      {/* Display Pricing Information */}
+      {loadingPricing ? (
+        <Text>Loading pricing information...</Text>
+      ) : pricingInfo ? (
+        <View style={styles.pricingInfo}>
+          <Text style={styles.pricingTitle}>Pricing Information</Text>
+          <Text>Premium: {pricingInfo.premium}</Text>
+          <Text>Coverage: {pricingInfo.coverage}</Text>
+          {/* Add more pricing details as needed */}
+        </View>
+      ) : null}
+
       <TouchableOpacity
         style={styles.nextButton}
-        onPress={() =>
-          navigation.navigate('VehicleInsurance6', {
-            insuranceProduct,
-            registrationNumber,
-            provider,
-            coverStartDate,
-          })
-        }
+        onPress={handleNext} // Call handleNext instead of navigating directly
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
@@ -226,5 +289,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  pricingInfo: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    elevation: 1,
+  },
+  pricingTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  documentActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

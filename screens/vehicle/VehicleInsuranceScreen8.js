@@ -67,7 +67,7 @@ const VehicleInsuranceScreen8 = () => {
     navigation.navigate('VehicleInsurance9', {
       insuranceProduct,
       provider,
-      coverStartDate,
+      coverStartDate, 
       registrationNumber,
       verifiedData: vehicleData,
     });

@@ -37,7 +37,22 @@ import MedicalInsuranceScreen1 from './screens/medical/MedicalInsuranceScreen1';
 import MedicalIndividualForm from './screens/medical/MedicalIndividualForm';
 import MedicalCorporateForm from './screens/medical/MedicalCorporateForm';
 
-// Future: import MedicalCorporateForm from './screens/medical/MedicalCorporateForm';
+//WIBA Insurance Screens
+import WibaInsuranceScreen1 from './screens/wiba/WibaInsuranceScreen1';
+
+import LastExpenseInsuranceScreen1 from './screens/lastExpense/LastExpenseInsuranceScreen1';
+import LastExpenseIndividualForm from './screens/lastExpense/LastExpenseIndividualForm';
+import LastExpenseCorporateForm from './screens/lastExpense/LastExpenseCorporateForm';
+
+
+import TravelInsuranceScreen1 from './screens/travel/TravelInsuranceScreen1';
+
+// Professional Indemnity
+import ProfessionalIndemnityScreen1 from './screens/professional/ProfessionalIndemnityScreen1';
+
+import DomesticPackageScreen1 from './screens/domestic/DomesticPackageScreen1';
+
+
 
 // Quotation View
 import ViewQuoteScreen from './screens/vehicle/ViewQuoteScreen';
@@ -83,6 +98,25 @@ export default function App() {
         <Stack.Screen name="MedicalInsurance1" component={MedicalInsuranceScreen1} />
         <Stack.Screen name="MedicalIndividualForm" component={MedicalIndividualForm} />
         <Stack.Screen name="MedicalCorporateForm" component={MedicalCorporateForm} />
+
+         {/* WIBA Insurance Flow */}
+         <Stack.Screen name="WibaInsurance1" component={WibaInsuranceScreen1} />
+
+
+         <Stack.Screen name="LastExpenseInsurance1" component={LastExpenseInsuranceScreen1} /> 
+         <Stack.Screen name="LastExpenseIndividualForm" component={LastExpenseIndividualForm} />
+<Stack.Screen name="LastExpenseCorporateForm" component={LastExpenseCorporateForm} />
+
+
+<Stack.Screen name="TravelInsurance1" component={TravelInsuranceScreen1} />
+
+
+<Stack.Screen name="ProfessionalIndemnity1" component={ProfessionalIndemnityScreen1} />
+
+<Stack.Screen name="DomesticPackage1" component={DomesticPackageScreen1} />
+
+
+
 
 
        
