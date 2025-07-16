@@ -1,19 +1,66 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Image 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ForgotPasswordScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [newPasswordVisible, setNewPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+
+  const handleResetPassword = () => {
+    if (!email || !phone || !newPassword || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long');
+      return;
+    }
+
+    setIsLoading(true); // Start loading
+
+    fetch('http://172.30.191.152:5000/auth/reset-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, phone, newPassword }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Password reset failed');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setIsLoading(false); // Stop loading
+        Alert.alert('Success', 'Your password has been reset successfully');
+        navigation.navigate('Login'); // Navigate to login screen
+      })
+      .catch((error) => {
+        setIsLoading(false); // Stop loading
+        Alert.alert('Error', error.message);
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -21,14 +68,18 @@ export default function ForgotPasswordScreen({ navigation }) {
 
       <TextInput
         style={styles.input}
-        placeholder="Email Address / username"
+        placeholder="Email Address / Username"
         placeholderTextColor="#aaa"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Phone Number"
         placeholderTextColor="#aaa"
         keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
       />
 
       {/* New Password with Toggle Eye */}
@@ -45,7 +96,7 @@ export default function ForgotPasswordScreen({ navigation }) {
           <Ionicons
             name={newPasswordVisible ? 'eye' : 'eye-off'}
             size={22}
-            color="#FF0000" // Red eye icon
+            color="#FF0000"
           />
         </TouchableOpacity>
       </View>
@@ -64,17 +115,22 @@ export default function ForgotPasswordScreen({ navigation }) {
           <Ionicons
             name={confirmPasswordVisible ? 'eye' : 'eye-off'}
             size={22}
-            color="#FF0000" // Red eye icon
+            color="#FF0000"
           />
         </TouchableOpacity>
       </View>
 
-      {/* Red Sign Up Button */}
+      {/* Reset Password Button */}
       <TouchableOpacity 
         style={styles.button}
-        onPress={() => navigation.navigate('Login')}
+        onPress={handleResetPassword}
+        disabled={isLoading}
       >
-        <Text style={styles.buttonText}>Sign Up</Text>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Reset Password</Text>
+        )}
       </TouchableOpacity>
 
       <Text style={styles.terms}>
@@ -122,7 +178,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   button: {
-    backgroundColor: '#FF0000', // Red button
+    backgroundColor: '#FF0000',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',

@@ -32,8 +32,10 @@ export default function MainTabs() {
           borderTopWidth: 1,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: 'bold',
+          fontSize: 12,           // Matches the approximate size in the image
+          fontWeight: 'bold',     // Matches the bold style
+          fontFamily: 'sans-serif', // Use a generic sans-serif font
+          textTransform: 'none',  // Ensures no uppercase transformation
         },
       })}
     >

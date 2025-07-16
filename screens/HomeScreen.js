@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -34,38 +35,58 @@ const chunkArray = (array, size) => {
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Extensions');
+  const [user, setUser] = useState(null);
+  const [selectedPill, setSelectedPill] = useState('Today');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   const handleProductPress = (product) => {
-    if (product === 'Vehicle Insurance') {
-      navigation.navigate('VehicleInsurance1');
-    }
-     if (product === 'Medical Insurance') {
-      navigation.navigate('MedicalInsurance1');
-    }
-    if (product === 'WIBA Insurance') {
-      navigation.navigate('WibaInsurance1');
-    }
-    if (product === 'Last Expense') {
-      navigation.navigate('LastExpenseInsurance1');
-    }
-    if (product === 'Travel Insurance') {
-      navigation.navigate('TravelInsurance1');
-    }
-    if (product === 'Professional Indemnity') {
-      navigation.navigate('ProfessionalIndemnity1');
-    }
-    if (product === 'Domestic Package') {
-      navigation.navigate('DomesticPackage1');
+    switch (product) {
+      case 'Vehicle Insurance':
+        navigation.navigate('VehicleInsurance1');
+        break;
+      case 'Medical Insurance':
+        navigation.navigate('MedicalInsurance1');
+        break;
+      case 'WIBA Insurance':
+        navigation.navigate('WibaInsurance1');
+        break;
+      case 'Last Expense':
+        navigation.navigate('LastExpenseInsurance1');
+        break;
+      case 'Travel Insurance':
+        navigation.navigate('TravelInsurance1');
+        break;
+      case 'Professional Indemnity':
+        navigation.navigate('ProfessionalIndemnity1');
+        break;
+      case 'Domestic Package':
+        navigation.navigate('DomesticPackage1');
+        break;
+      default:
+        break;
     }
   };
 
   const renderExtensions = () => (
     <View style={styles.extensionsList}>
       {['KBH123B', 'KDA456X'].map((plate) => (
-        <View
-          key={plate}
-          style={[styles.extensionCard, { backgroundColor: '#F8D7DA' }]}
-        >
+        <View key={plate} style={[styles.extensionCard, { backgroundColor: '#F8D7DA' }]}>
           <View style={styles.extensionRow}>
             <View>
               <Text style={[styles.policyNumber, { color: '#E30613' }]}>{plate}</Text>
@@ -106,90 +127,129 @@ const HomeScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>K</Text>
+            <Text style={styles.avatarText}>{user?.name?.[0]?.toUpperCase() || 'U'}</Text>
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.greeting}>Good Afternoon</Text>
-            <Text style={styles.username}>Kelvin Kahoi</Text>
+            <Text style={styles.greeting}>{getGreeting()}</Text>
+            <Text style={styles.username}>{user?.name || 'User'}</Text>
+
             <View style={styles.statsRow}>
-              <Text style={styles.statsLabel}>Today</Text>
-              <Text style={styles.statsLabel}>Since Last Commission</Text>
+              <TouchableOpacity onPress={() => setSelectedPill('Today')}>
+                <Text
+                  style={[
+                    styles.statsLabel,
+                    selectedPill === 'Today' ? styles.statsPillRed : styles.statsPillOutlined,
+                  ]}
+                >
+                  Today
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setSelectedPill('Since Last Commission')}>
+                <Text
+                  style={[
+                    styles.statsLabel,
+                    selectedPill === 'Since Last Commission'
+                      ? styles.statsPillRed
+                      : styles.statsPillOutlined,
+                  ]}
+                >
+                  Since Last Commission
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
           <Ionicons name="notifications-outline" size={24} color="#000" />
         </View>
 
-        {/* My Sales Card */}
         <View style={styles.mySalesCard}>
-          <View style={styles.mySalesTop}>
-            <View style={styles.topStatsRow}>
-              <View>
-                <Text style={styles.mySalesTitle}>My Sales</Text>
-                <Text style={styles.statsTitle}>Kes. 0</Text>
-              </View>
-              <View>
-                <Text style={styles.statsTitle}>1 Day</Text>
-              </View>
-            </View>
-          </View>
+  <View style={styles.mySalesTop}>
+    <View style={styles.topStatsRow}>
+      <View>
+        <Text style={styles.mySalesTitle}>My Sales</Text>
+        <Text style={styles.statsTitle}>Kes. 0</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text style={styles.statsTitle}>Period</Text>
+        <Text style={styles.statsTitle}>1 Day</Text>
+      </View>
+    </View>
+  </View>
 
-          <View style={styles.mySalesBottom}>
-            <View style={styles.salesInfoRowFlat}>
-              <View>
-                <Text style={styles.salesInfoLabelBlack}>Next Commission Date</Text>
-                <Text style={styles.salesInfoValueBlack}>Wed, Jul 16</Text>
-              </View>
-              <View>
-                <Text style={styles.salesInfoLabelBlack}>Policies Sold</Text>
-                <Text style={styles.salesInfoValueBlack}>0</Text>
-              </View>
-            </View>
-          </View>
-        </View>
+  <View style={styles.mySalesBottom}>
+    <View style={styles.salesInfoRowFlat}>
+      <View>
+        <Text style={styles.salesInfoLabelBlack}>Next Commission Date</Text>
+        <Text style={styles.salesInfoValueBlack}>Fri, Aug 1</Text>
+      </View>
+      <View>
+        <Text style={styles.salesInfoLabelBlack}>Policies Sold</Text>
+        <Text style={styles.salesInfoValueBlack}>0</Text>
+      </View>
+    </View>
+  </View>
+</View>
 
         {/* Insurance Products */}
         <Text style={styles.sectionTitle}>Insurance Products</Text>
         <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
+  horizontal
+  pagingEnabled
+  showsHorizontalScrollIndicator={false}
+  style={{ height: 200 }}
+>
+  {pages.map((page, pageIndex) => (
+    <View key={pageIndex} style={styles.productsPage}>
+      {page.map((product, index) => (
+        <TouchableOpacity
+          key={`${pageIndex}-${index}`}
+          style={styles.productCardPaged}
+          onPress={() => handleProductPress(product.label)}
         >
-          {pages.map((group, index) => (
-            <View key={index} style={styles.productPage}>
-              {group.map((product, i) => (
-                <TouchableOpacity
-                  key={i}
-                  style={styles.productBox}
-                  onPress={() => handleProductPress(product.label)}
-                >
-                  <Ionicons name={product.icon} size={28} color="#E30613" />
-                  <Text style={styles.productText}>{product.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ))}
-        </ScrollView>
+          <Ionicons name={product.icon} size={28} color="#E30613" />
+          <Text style={styles.productText}>{product.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  ))}
+</ScrollView>
+
 
         {/* Campaigns */}
         <Text style={styles.sectionTitle}>Campaigns</Text>
         <View style={{ height: 100 }} />
 
-        {/* Upcoming Renewals */}
-        <Text style={styles.sectionTitle}>Upcoming Renewals</Text>
-        <View style={styles.toggleTabs}>
+        {/* Renewals */}
+        <Text style={styles.sectionTitle}>Upcoming Extensions</Text>
+        <View style={styles.segmentedControl}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'Renewals' ? styles.activeTab : styles.inactiveTab]}
+            style={[
+              styles.segmentButton,
+              activeTab === 'Renewals' && styles.segmentButtonActive,
+            ]}
             onPress={() => setActiveTab('Renewals')}
           >
-            <Text style={activeTab === 'Renewals' ? styles.activeTabText : styles.inactiveTabText}>
+            <Text
+              style={[
+                styles.segmentButtonText,
+                activeTab === 'Renewals' && styles.segmentButtonTextActive,
+              ]}
+            >
               Renewals (0)
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'Extensions' ? styles.activeTab : styles.inactiveTab]}
+            style={[
+              styles.segmentButton,
+              activeTab === 'Extensions' && styles.segmentButtonActive,
+            ]}
             onPress={() => setActiveTab('Extensions')}
           >
-            <Text style={activeTab === 'Extensions' ? styles.activeTabText : styles.inactiveTabText}>
+            <Text
+              style={[
+                styles.segmentButtonText,
+                activeTab === 'Extensions' && styles.segmentButtonTextActive,
+              ]}
+            >
               Extensions (0)
             </Text>
           </TouchableOpacity>
@@ -228,7 +288,7 @@ const styles = StyleSheet.create({
   username: { fontSize: 18, fontWeight: 'bold', color: '#000' },
   statsRow: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 10,
     marginTop: 4,
   },
   statsLabel: {
@@ -236,61 +296,112 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#333',
   },
-  mySalesCard: {
-    marginHorizontal: 15,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 10,
-  },
-  mySalesTop: {
+  statsPillRed: {
     backgroundColor: '#E30613',
-    padding: 15,
+    color: '#fff',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    fontSize: 12,
+    fontWeight: '600',
   },
-  mySalesBottom: {
+  productsGrid: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  marginHorizontal: 15,
+  marginTop: 10,
+},
+
+productsPage: {
+  width: screenWidth,
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'space-evenly',
+  alignItems: 'center',
+  paddingVertical: 10,
+},
+
+productCardPaged: {
+  width: screenWidth / 2.8, // slightly smaller width
+  backgroundColor: '#FDEBEC',
+  paddingVertical: 15,      // reduced vertical padding
+  paddingHorizontal: 10,
+  borderRadius: 10,
+  alignItems: 'center',
+  marginVertical: 8,
+},
+
+  statsPillOutlined: {
     backgroundColor: '#fff',
-    padding: 15,
+    color: '#E30613',
+    borderColor: '#E30613',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    fontSize: 12,
+    fontWeight: '600',
   },
-  topStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statsTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  mySalesTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  salesInfoRowFlat: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  salesInfoLabelBlack: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-    marginBottom: 2,
-  },
-  salesInfoValueBlack: {
-    color: '#000',
-    fontSize: 14,
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-  },
-    sectionTitle: {
+  mySalesCard: {
+  backgroundColor: '#fff',
+  borderRadius: 12,
+  marginHorizontal: 15,
+  marginTop: 10,
+  marginBottom: 10,
+  overflow: 'hidden',
+  elevation: 3, // Android shadow
+  shadowColor: '#000', // iOS shadow
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+},
+mySalesTop: {
+  backgroundColor: '#E30613', // red top
+  padding: 15,
+},
+mySalesBottom: {
+  backgroundColor: '#fff', // white bottom
+  padding: 15,
+},
+topStatsRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+},
+mySalesTitle: {
+  color: '#fff',
+  fontSize: 18,
+  fontWeight: 'bold',
+  marginBottom: 4,
+},
+statsTitle: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+salesInfoRowFlat: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+},
+salesInfoLabelBlack: {
+  color: '#000',
+  fontSize: 14,
+  fontWeight: '600',
+  marginBottom: 4,
+},
+salesInfoValueBlack: {
+  color: '#000',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+
+  sectionTitle: {
     marginHorizontal: 15,
     marginTop: 20,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
   },
-
   productPage: {
     width: screenWidth,
     flexDirection: 'row',
@@ -308,32 +419,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
-  toggleTabs: {
+  segmentedControl: {
     flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 30,
+    padding: 4,
     marginHorizontal: 15,
-    marginVertical: 10,
-    justifyContent: 'space-around',
+    marginTop: 10,
+    marginBottom: 10,
   },
-  tab: {
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
+  segmentButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 30,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  activeTab: {
-    backgroundColor: '#E30613',
-  },
-  activeTabText: {
-    color: 'white',
-    fontWeight: 'bold',
+  segmentButtonActive: {
+  backgroundColor: '#E30613',
+},
+
+  segmentButtonText: {
     fontSize: 14,
-  },
-  inactiveTab: {
-    backgroundColor: '#E0E0E0',
-  },
-  inactiveTabText: {
-    color: '#555',
+    color: '#666',
     fontWeight: 'bold',
-    fontSize: 14,
+  },
+  segmentButtonTextActive: {
+    color: '#fff',
   },
   extensionsList: {
     marginHorizontal: 15,

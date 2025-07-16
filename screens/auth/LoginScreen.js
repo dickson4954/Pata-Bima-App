@@ -7,31 +7,59 @@ import {
   StyleSheet,
   Image,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // ✅ Eye icon
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordVisible, setPasswordVisible] = useState(false); // 👁️ Toggle state
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!phone || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    if (phone.trim() === '0712345678' && password.trim() === '1234') {
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://062449484e76.ngrok-free.app/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, password }), // assuming your backend expects "phone" and "password"
+      });
+
+      const data = await response.json();
+      setIsLoading(false);
+
+      if (!response.ok || !data.success) {
+        Alert.alert('Login Failed', data.message || 'Invalid credentials');
+        return;
+      }
+
+      // Store token and user info
+      await AsyncStorage.setItem('access_token', data.access_token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+
       navigation.replace('MainTabs');
-    } else {
-      Alert.alert('Login Failed', 'Incorrect phone number or password');
+    } catch (error) {
+      setIsLoading(false);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     }
   };
 
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/logo.png.jpg')} style={styles.logo} />
-      <Text style={styles.signupTitle}><Text style={styles.bold}>Let's sign You In</Text></Text>
+      <Text style={styles.signupTitle}>
+        <Text style={styles.bold}>Let's sign You In</Text>
+      </Text>
       <Text style={styles.welcome}>Welcome back, you’ve been missed</Text>
 
       <TextInput
@@ -43,7 +71,6 @@ export default function LoginScreen({ navigation }) {
         keyboardType="phone-pad"
       />
 
-      {/* 👁️ Password input with toggle */}
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -71,8 +98,12 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Sign In</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Sign In</Text>
+        )}
       </TouchableOpacity>
 
       <Text style={styles.terms}>

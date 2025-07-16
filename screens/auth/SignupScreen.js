@@ -12,10 +12,12 @@ import {
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 
 export default function SignupScreen({ navigation }) {
   const [formData, setFormData] = useState({
+    name: '', 
     email: '',
     phone: '',
     password: '',
@@ -29,6 +31,7 @@ export default function SignupScreen({ navigation }) {
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.name) newErrors.name = 'Full name is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.phone) newErrors.phone = 'Phone number is required';
     if (!formData.password) newErrors.password = 'Password is required';
@@ -41,15 +44,44 @@ export default function SignupScreen({ navigation }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
+const handleSubmit = async () => {
+  if (validateForm()) {
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+      role: formData.role,
+    };
+
+    console.log('Sending payload:', payload);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://062449484e76.ngrok-free.app/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      setIsLoading(false);
+
+      if (response.ok && data.success && data.user) {
+        await AsyncStorage.setItem('user', JSON.stringify(data.user));
         navigation.navigate('Login');
-      }, 1500);
+      } else {
+        alert(data.message || 'Signup failed');
+      }
+    } catch (error) {
+      setIsLoading(false);
+      alert('Network error: ' + error.message);
     }
-  };
+  }
+};
+
 
   const handleChange = (name, value) => {
     setFormData({
@@ -78,6 +110,18 @@ export default function SignupScreen({ navigation }) {
           />
           <Text style={styles.signupTitle}>Let's sign You Up</Text>
           <Text style={styles.subtitle}>Welcome to PataBimaAgency</Text>
+          {/* Full Name Input */}
+<View style={styles.inputContainer}>
+  <TextInput
+    style={[styles.input, errors.name && styles.inputError]}
+    placeholder="Full Name"
+    placeholderTextColor="#aaa"
+    value={formData.name}
+    onChangeText={(text) => handleChange('name', text)}
+  />
+  {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+</View>
+
 
           {/* Email Input */}
           <View style={styles.inputContainer}>
@@ -318,4 +362,3 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
- 
